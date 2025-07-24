@@ -51,10 +51,9 @@ body {
 }
 
 .dashboard-header {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: #1e293b;
   color: #e2e8f0;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  padding: 0.75rem 1.5rem;
   border-bottom: 1px solid #334155;
 }
 
@@ -65,14 +64,15 @@ body {
 }
 
 .header-content h1 {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
 }
 
 .header-content h1 .command-text {
   font-family: "Armstrong";
   font-weight: normal;
-  font-size: 1.3rem;
+  font-size: 1.125rem;
 }
 
 .status-indicators {
@@ -119,7 +119,6 @@ body {
 .sidebar {
   background: #1e293b;
   border-right: 1px solid #334155;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
   /* Custom Scrollbar */
   scrollbar-width: thin; /* Firefox */
@@ -193,9 +192,9 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem;
+  padding: 0.75rem;
   background: #0f172a;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid #334155;
 }
 
@@ -308,13 +307,15 @@ body {
 
 .action-button {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.5rem;
   margin-bottom: 0.5rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .action-button.primary {
@@ -352,8 +353,7 @@ body {
 .world-map {
   height: 100%;
   background: #1e293b;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
   overflow: hidden;
   position: relative;
   border: 1px solid #334155;
@@ -703,7 +703,6 @@ body {
 .alerts-panel {
   background: #1e293b;
   border-left: 1px solid #334155;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #475569 transparent; /* Firefox */
@@ -795,11 +794,11 @@ body {
 
 .alert-item {
   display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-  transition: all 0.2s;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  transition: all 0.15s;
 }
 
 .alert-item.urgent {

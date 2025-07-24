@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Disaster, OperationalCenter, Shipment, InventoryItem } from '../types';
 
@@ -11,6 +11,13 @@ interface SidebarProps {
   onFilterChange?: (filters: SidebarFilters) => void;
   onAddDonation?: (donation: Partial<InventoryItem>) => void;
   onManualAllocation?: (request: AllocationRequest) => void;
+  liveMetrics?: {
+    peopleHelped: number;
+    wastePrevented: number;
+    costSaved: number;
+    disastersResponded: number;
+    totalOperations?: number;
+  };
 }
 
 interface SidebarFilters {
@@ -37,7 +44,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
   onFilterChange,
   onAddDonation,
-  onManualAllocation
+  onManualAllocation,
+  liveMetrics
 }) => {
   const [filters, setFilters] = useState<SidebarFilters>({
     disasterType: 'all',
@@ -49,6 +57,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [showAllocationModal, setShowAllocationModal] = useState(false);
+  const [animatedMetrics, setAnimatedMetrics] = useState({
+    peopleHelped: 0,
+    wastePrevented: 0,
+    costSaved: 0,
+    disastersResponded: 0,
+    totalOperations: 0
+  });
+  const prevMetricsRef = useRef(animatedMetrics);
 
   const updateFilters = (newFilters: Partial<SidebarFilters>) => {
     const updatedFilters = { ...filters, ...newFilters };
@@ -91,6 +107,74 @@ const Sidebar: React.FC<SidebarProps> = ({
   const totalActiveDisasters = filteredDisasters.length;
   const totalCentersOnline = filteredCenters.length;
   const totalShipmentsInTransit = shipments.filter(s => s.status === 'in_transit' || s.status === 'delayed').length;
+  
+  // Animated counter component
+  const AnimatedCounter: React.FC<{ 
+    value: number; 
+    duration?: number; 
+    formatter?: (num: number) => string;
+    className?: string;
+  }> = ({ value, duration = 1000, formatter = (n) => n.toLocaleString(), className = '' }) => {
+    const [displayValue, setDisplayValue] = useState(0);
+    const startTimeRef = useRef<number | null>(null);
+    const animationRef = useRef<number | null>(null);
+    
+    useEffect(() => {
+      if (displayValue === value) return;
+      
+      const animate = (timestamp: number) => {
+        if (!startTimeRef.current) startTimeRef.current = timestamp;
+        
+        const elapsed = timestamp - startTimeRef.current;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for smooth animation
+        const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+        const currentValue = Math.floor(displayValue + (value - displayValue) * easeOutCubic);
+        
+        setDisplayValue(currentValue);
+        
+        if (progress < 1) {
+          animationRef.current = requestAnimationFrame(animate);
+        } else {
+          startTimeRef.current = null;
+        }
+      };
+      
+      animationRef.current = requestAnimationFrame(animate);
+      
+      return () => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+      };
+    }, [value, displayValue, duration]);
+    
+    return (
+      <motion.span 
+        className={className}
+        key={value} // Force re-render on value change
+        initial={{ scale: 1.1, color: value > displayValue ? '#00ff88' : '#333' }}
+        animate={{ scale: 1, color: '#333' }}
+        transition={{ duration: 0.3 }}
+      >
+        {formatter(displayValue)}
+      </motion.span>
+    );
+  };
+  
+  // Animate metrics when liveMetrics prop changes
+  useEffect(() => {
+    if (liveMetrics) {
+      setAnimatedMetrics({
+        peopleHelped: liveMetrics.peopleHelped,
+        wastePrevented: liveMetrics.wastePrevented,
+        costSaved: liveMetrics.costSaved,
+        disastersResponded: liveMetrics.disastersResponded,
+        totalOperations: liveMetrics.totalOperations || disasters.length + operationalCenters.length + shipments.length
+      });
+    }
+  }, [liveMetrics, disasters.length, operationalCenters.length, shipments.length]);
 
   if (collapsed) {
     return (
@@ -99,9 +183,27 @@ const Sidebar: React.FC<SidebarProps> = ({
           →
         </button>
         <div className="collapsed-stats">
-          <div className="stat-icon"></div>
-          <div className="stat-icon"></div>
-          <div className="stat-icon"></div>
+          <motion.div 
+            className="stat-icon collapsed-metric"
+            title={`${animatedMetrics.peopleHelped.toLocaleString()} people helped`}
+            whileHover={{ scale: 1.1 }}
+          >
+            <div style={{ width: '8px', height: '8px', backgroundColor: '#10b981', borderRadius: '50%' }}></div>
+          </motion.div>
+          <motion.div 
+            className="stat-icon collapsed-metric"
+            title={`${animatedMetrics.wastePrevented.toLocaleString()} tons waste prevented`}
+            whileHover={{ scale: 1.1 }}
+          >
+            <div style={{ width: '8px', height: '8px', backgroundColor: '#3b82f6', borderRadius: '50%' }}></div>
+          </motion.div>
+          <motion.div 
+            className="stat-icon collapsed-metric"
+            title={`$${Math.floor(animatedMetrics.costSaved / 1000000)}M cost saved`}
+            whileHover={{ scale: 1.1 }}
+          >
+            <div style={{ width: '8px', height: '8px', backgroundColor: '#eab308', borderRadius: '50%' }}></div>
+          </motion.div>
         </div>
       </div>
     );
@@ -123,27 +225,149 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="overview-stats">
         <div className="stat-card">
-          <div className="stat-icon"></div>
+          <div className="stat-icon">
+            <div style={{ width: '12px', height: '12px', backgroundColor: '#dc2626', borderRadius: '50%' }}></div>
+          </div>
           <div className="stat-content">
-            <div className="stat-number disasters-count">{totalActiveDisasters}</div>
+            <div className="stat-number disasters-count">
+              <AnimatedCounter value={totalActiveDisasters} duration={800} />
+            </div>
             <div className="stat-label">Active Disasters</div>
           </div>
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon"></div>
+          <div className="stat-icon">
+            <div style={{ width: '12px', height: '12px', backgroundColor: '#10b981', borderRadius: '50%' }}></div>
+          </div>
           <div className="stat-content">
-            <div className="stat-number">{totalCentersOnline}</div>
+            <div className="stat-number">
+              <AnimatedCounter value={totalCentersOnline} duration={800} />
+            </div>
             <div className="stat-label">Centers Online</div>
           </div>
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon"></div>
+          <div className="stat-icon">
+            <div style={{ width: '12px', height: '12px', backgroundColor: '#3b82f6', borderRadius: '50%' }}></div>
+          </div>
           <div className="stat-content">
-            <div className="stat-number">{totalShipmentsInTransit}</div>
+            <div className="stat-number">
+              <AnimatedCounter value={totalShipmentsInTransit} duration={800} />
+            </div>
             <div className="stat-label">Shipments En Route</div>
           </div>
+        </div>
+      </div>
+      
+      {/* Live Impact Metrics */}
+      <div className="impact-metrics-section">
+        <h4>🎯 Live Impact Metrics</h4>
+        <div className="impact-grid">
+          <motion.div 
+            className="impact-card people-helped"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="impact-icon">👥</div>
+            <div className="impact-content">
+              <div className="impact-number">
+                <AnimatedCounter 
+                  value={animatedMetrics.peopleHelped} 
+                  formatter={(n) => n.toLocaleString()}
+                  className="impact-value"
+                  duration={1200}
+                />
+              </div>
+              <div className="impact-label">People Helped</div>
+              <div className="impact-trend">↗ +{Math.floor(Math.random() * 2000) + 500}/hr</div>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className="impact-card waste-prevented"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="impact-icon">
+              <div style={{ width: '10px', height: '10px', backgroundColor: '#10b981', borderRadius: '2px' }}></div>
+            </div>
+            <div className="impact-content">
+              <div className="impact-number">
+                <AnimatedCounter 
+                  value={animatedMetrics.wastePrevented} 
+                  formatter={(n) => n.toLocaleString()}
+                  className="impact-value"
+                  duration={1200}
+                />
+              </div>
+              <div className="impact-label">Tons Waste Prevented</div>
+              <div className="impact-trend">↗ +{Math.floor(Math.random() * 100) + 50}/hr</div>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className="impact-card cost-saved"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="impact-icon">
+              <div style={{ width: '10px', height: '10px', backgroundColor: '#eab308', borderRadius: '2px' }}></div>
+            </div>
+            <div className="impact-content">
+              <div className="impact-number">
+                <AnimatedCounter 
+                  value={animatedMetrics.costSaved} 
+                  formatter={(n) => `$${Math.floor(n / 1000000)}M`}
+                  className="impact-value"
+                  duration={1200}
+                />
+              </div>
+              <div className="impact-label">Cost Saved</div>
+              <div className="impact-trend">↗ +${Math.floor(Math.random() * 50) + 25}K/hr</div>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className="impact-card operations"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="impact-icon">
+              <div style={{ width: '10px', height: '10px', backgroundColor: '#3b82f6', borderRadius: '2px' }}></div>
+            </div>
+            <div className="impact-content">
+              <div className="impact-number">
+                <AnimatedCounter 
+                  value={animatedMetrics.totalOperations} 
+                  formatter={(n) => n.toLocaleString()}
+                  className="impact-value"
+                  duration={1000}
+                />
+              </div>
+              <div className="impact-label">Active Operations</div>
+              <div className="impact-trend">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <div style={{ width: '6px', height: '6px', backgroundColor: '#10b981', borderRadius: '50%' }}></div>
+                  All Systems Operational
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+        
+        <div className="efficiency-indicator">
+          <div className="efficiency-label">System Efficiency</div>
+          <div className="efficiency-bar">
+            <motion.div 
+              className="efficiency-fill"
+              initial={{ width: '0%' }}
+              animate={{ width: '87%' }}
+              transition={{ duration: 2, ease: "easeOut" }}
+            />
+          </div>
+          <div className="efficiency-value">87% - Excellent Performance</div>
         </div>
       </div>
 

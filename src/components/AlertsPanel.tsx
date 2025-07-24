@@ -7,7 +7,7 @@ interface AlertsPanelProps {
   collapsed: boolean;
   onToggleCollapse: () => void;
   onAlertClick?: (alert: Alert) => void;
-  onAlertAction?: (alertId: string, actionType: string) => void;
+  onAlertAction?: (alertId: string, actionType: string, actionId?: string) => void;
 }
 
 const AlertsPanel: React.FC<AlertsPanelProps> = ({
@@ -31,11 +31,15 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
     onAlertClick?.(alert);
   };
   
-  const handleAlertAction = (actionType: string) => {
+  const handleAlertAction = (actionType: string, actionId?: string) => {
     if (selectedAlert) {
-      onAlertAction?.(selectedAlert.id, actionType);
-      setShowRecommendations(false);
-      setSelectedAlert(null);
+      onAlertAction?.(selectedAlert.id, actionType, actionId);
+      
+      // Keep modal open for 'view_route' and 'contact' actions, close for 'approve'
+      if (actionType === 'approve' || actionType === 'report_issue') {
+        setShowRecommendations(false);
+        setSelectedAlert(null);
+      }
     }
   };
   
@@ -69,8 +73,8 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
           ←
         </button>
         <div className="collapsed-alerts">
-          <div className="alert-count urgent">{urgentAlerts.length}</div>
-          <div className="alert-count info">{infoAlerts.length}</div>
+          <div className="alert-count urgent" title={`${urgentAlerts.length} urgent alerts`}>{urgentAlerts.length}</div>
+          <div className="alert-count info" title={`${infoAlerts.length} info alerts`}>{infoAlerts.length}</div>
         </div>
       </div>
     );
@@ -171,7 +175,15 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
       </div>
 
       <div className="alerts-footer">
-        <button className="clear-all-btn">Clear All Notifications</button>
+        <button 
+          className="clear-all-btn"
+          onClick={() => {
+            // Only clear resolved alerts, keep active ones
+            // This could trigger a callback to parent if implemented
+          }}
+        >
+          Clear Resolved Notifications
+        </button>
       </div>
 
       {/* Human-in-the-Loop Recommendations Modal */}
@@ -192,8 +204,15 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
               onClick={e => e.stopPropagation()}
             >
               <div className="modal-header">
-                <h3> Human-in-the-Loop Agent</h3>
+                <h3>Decision Support System</h3>
                 <p className="alert-context">{selectedAlert.message}</p>
+                <div className="ai-confidence">
+                  <span className="confidence-label">AI Confidence:</span>
+                  <div className="confidence-bar">
+                    <div className="confidence-fill" style={{width: '87%'}}></div>
+                  </div>
+                  <span className="confidence-value">87%</span>
+                </div>
               </div>
 
               <div className="recommendations-content">
@@ -223,15 +242,16 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
                       {recommendation.actions.map((action) => (
                         <motion.button
                           key={action.id}
-                          onClick={() => handleAlertAction(action.type)}
+                          onClick={() => handleAlertAction(action.type, action.id)}
                           className={`recommendation-btn ${action.primary ? 'primary' : 'secondary'}`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          {action.type === 'approve' && ' Approve Recommended Action'}
-                          {action.type === 'view_route' && ' View Alternative Route on Map'}
-                          {action.type === 'contact' && ' Contact Carrier'}
-                          {action.type === 'report_issue' && ' Report Issue'}
+                          {action.type === 'approve' && 'Approve Recommended Action'}
+                          {action.type === 'view_route' && 'View Alternative Route on Map'}
+                          {action.type === 'contact' && 'Contact Carrier'}
+                          {action.type === 'report_issue' && 'Report Issue'}
+                          {!['approve', 'view_route', 'contact', 'report_issue'].includes(action.type) && action.label}
                         </motion.button>
                       ))}
                     </div>

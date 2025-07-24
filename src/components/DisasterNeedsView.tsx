@@ -17,6 +17,8 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
   const [isMatching, setIsMatching] = useState(false);
   const [matchingProgress, setMatchingProgress] = useState(0);
   const [showMatchingAnimation, setShowMatchingAnimation] = useState(false);
+  const [matchingStage, setMatchingStage] = useState('');
+  const [batchProgress, setBatchProgress] = useState<{[key: string]: number}>({});
 
   const calculateMatchRate = () => {
     const totalRequested = needs.reduce((sum, need) => sum + need.quantityRequested, 0);
@@ -38,63 +40,134 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
     setIsMatching(true);
     setShowMatchingAnimation(true);
     setMatchingProgress(0);
-
-    // Simulate Agentforce matching process
-    const matchingInterval = setInterval(() => {
-      setMatchingProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(matchingInterval);
-          
-          // Update needs with new matched quantities
-          setTimeout(() => {
-            setNeeds(prevNeeds => 
-              prevNeeds.map(need => {
-                const remainingGap = need.quantityRequested - need.quantityMatched;
-                const additionalMatch = Math.floor(remainingGap * (0.3 + Math.random() * 0.4));
-                return {
-                  ...need,
-                  quantityMatched: Math.min(
-                    need.quantityRequested,
-                    need.quantityMatched + additionalMatch
-                  )
-                };
-              })
-            );
-            setIsMatching(false);
-            setShowMatchingAnimation(false);
-          }, 1000);
-          
-          return 100;
+    setBatchProgress({});
+    
+    const stages = [
+      'Analyzing inventory across global distribution centers...',
+      'Identifying optimal resource allocation paths...',
+      'Processing corporate partnership matches...',
+      'Calculating transportation logistics...',
+      'Finalizing allocation recommendations...'
+    ];
+    
+    let currentStage = 0;
+    setMatchingStage(stages[0]);
+    
+    // Progressive batch matching with realistic delays
+    const batchMatching = async () => {
+      const needsCopy = [...needs];
+      const batchSize = Math.ceil(needsCopy.length / 3); // Process in 3 batches
+      
+      for (let batch = 0; batch < 3; batch++) {
+        const startIndex = batch * batchSize;
+        const endIndex = Math.min(startIndex + batchSize, needsCopy.length);
+        const batchNeeds = needsCopy.slice(startIndex, endIndex);
+        
+        // Update stage
+        if (currentStage < stages.length - 1) {
+          setMatchingStage(stages[++currentStage]);
         }
-        return prev + 2;
-      });
-    }, 50);
+        
+        // Process each need in the batch with individual progress
+        for (let i = 0; i < batchNeeds.length; i++) {
+          const need = batchNeeds[i];
+          const batchKey = `batch-${batch}-${i}`;
+          
+          // Simulate processing time per item
+          await new Promise(resolve => {
+            let itemProgress = 0;
+            const itemInterval = setInterval(() => {
+              itemProgress += 10 + Math.random() * 15;
+              setBatchProgress(prev => ({ ...prev, [batchKey]: itemProgress }));
+              
+              if (itemProgress >= 100) {
+                clearInterval(itemInterval);
+                
+                // Update the actual need quantities
+                setNeeds(prevNeeds => 
+                  prevNeeds.map(prevNeed => {
+                    if (prevNeed.id === need.id) {
+                      const remainingGap = prevNeed.quantityRequested - prevNeed.quantityMatched;
+                      const matchEfficiency = need.priority === 'high' ? 0.7 : need.priority === 'medium' ? 0.5 : 0.3;
+                      const additionalMatch = Math.floor(remainingGap * (matchEfficiency + Math.random() * 0.2));
+                      
+                      return {
+                        ...prevNeed,
+                        quantityMatched: Math.min(
+                          prevNeed.quantityRequested,
+                          prevNeed.quantityMatched + additionalMatch
+                        )
+                      };
+                    }
+                    return prevNeed;
+                  })
+                );
+                
+                resolve(undefined);
+              }
+            }, 100 + Math.random() * 200); // Variable processing speed
+          });
+        }
+        
+        // Update overall progress
+        const overallProgress = ((batch + 1) / 3) * 100;
+        setMatchingProgress(overallProgress);
+        
+        // Pause between batches
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      // Final completion
+      setMatchingStage('Matching complete! New allocations have been processed.');
+      setTimeout(() => {
+        setIsMatching(false);
+        setShowMatchingAnimation(false);
+        setBatchProgress({});
+      }, 2000);
+    };
+    
+    batchMatching();
   };
 
-  // Simulate real-time updates
+  // Enhanced real-time updates with multiple sources
   useEffect(() => {
     const updateInterval = setInterval(() => {
-      if (!isMatching && Math.random() < 0.3) {
+      if (!isMatching && Math.random() < 0.4) {
         setNeeds(prevNeeds => {
           const updatedNeeds = [...prevNeeds];
-          const randomIndex = Math.floor(Math.random() * updatedNeeds.length);
-          const need = updatedNeeds[randomIndex];
           
-          if (need.quantityMatched < need.quantityRequested) {
-            const increment = Math.floor(Math.random() * 1000) + 100;
-            updatedNeeds[randomIndex] = {
-              ...need,
-              quantityMatched: Math.min(need.quantityRequested, need.quantityMatched + increment)
-            };
+          // Prioritize high-priority needs for updates
+          const highPriorityNeeds = updatedNeeds.filter(n => n.priority === 'high' && n.quantityMatched < n.quantityRequested);
+          const availableNeeds = highPriorityNeeds.length > 0 ? highPriorityNeeds : updatedNeeds.filter(n => n.quantityMatched < n.quantityRequested);
+          
+          if (availableNeeds.length > 0) {
+            const randomNeed = availableNeeds[Math.floor(Math.random() * availableNeeds.length)];
+            const needIndex = updatedNeeds.findIndex(n => n.id === randomNeed.id);
+            
+            if (needIndex !== -1) {
+              const remainingGap = randomNeed.quantityRequested - randomNeed.quantityMatched;
+              const maxIncrement = Math.min(remainingGap, Math.floor(remainingGap * 0.1) + 500);
+              const increment = Math.floor(Math.random() * maxIncrement) + 100;
+              
+              updatedNeeds[needIndex] = {
+                ...randomNeed,
+                quantityMatched: Math.min(randomNeed.quantityRequested, randomNeed.quantityMatched + increment)
+              };
+            }
           }
           
           return updatedNeeds;
         });
       }
-    }, 3000);
+    }, 2500); // Slightly faster updates
 
     return () => clearInterval(updateInterval);
   }, [isMatching]);
+  
+  // Sync with parent disaster data
+  useEffect(() => {
+    setNeeds(disaster.needs);
+  }, [disaster.needs]);
 
   const matchRate = calculateMatchRate();
   const topUnmetNeeds = getTopUnmetNeeds();
@@ -182,21 +255,27 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
 
         <div className="matching-section">
           <div className="matching-header">
-            <h4> Agentforce Auto-Matching</h4>
+            <h4>Auto-Matching System</h4>
+          <p className="matching-description">
+            AI-powered resource allocation across {disaster.affectedPopulation > 10000000 ? '15+' : '12+'} global distribution centers. 
+            Current efficiency: {matchRate >= 80 ? 'Excellent' : matchRate >= 60 ? 'Good' : 'Needs Improvement'}
+          </p>
             <motion.button 
               onClick={handleMatchRemainingNeeds}
-              disabled={isMatching}
-              className={`match-button ${isMatching ? 'matching' : ''}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              disabled={isMatching || matchRate >= 95}
+              className={`match-button ${isMatching ? 'matching' : ''} ${matchRate >= 95 ? 'completed' : ''}`}
+              whileHover={{ scale: isMatching ? 1 : 1.05 }}
+              whileTap={{ scale: isMatching ? 1 : 0.95 }}
             >
               {isMatching ? (
                 <>
                   <span className="loading-spinner"></span>
-                  Matching... {matchingProgress.toFixed(0)}%
+                  Processing... {matchingProgress.toFixed(0)}%
                 </>
+              ) : matchRate >= 95 ? (
+                'Matching Nearly Complete'
               ) : (
-                ' Match Remaining Needs'
+                'Run Auto-Matching Algorithm'
               )}
             </motion.button>
           </div>
@@ -217,7 +296,14 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
                   />
                 </div>
                 <div className="progress-text">
-                  Agentforce is analyzing inventory across {disaster.affectedPopulation > 10000000 ? '15+' : '12+'} distribution centers...
+                  {matchingStage}
+                </div>
+                <div className="batch-details">
+                  {Object.keys(batchProgress).length > 0 && (
+                    <div className="current-batch">
+                      Processing batch items: {Object.values(batchProgress).filter(p => p < 100).length} active
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}

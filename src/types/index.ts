@@ -127,6 +127,11 @@ export interface Route {
   estimatedDuration: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
   alternativeRoutes?: AlternativeRoute[];
+  routeType?: 'primary' | 'alternative';
+  costEstimate?: string;
+  aiConfidence?: number;
+  advantages?: string[];
+  risks?: string[];
 }
 
 export interface AlternativeRoute {
@@ -150,6 +155,7 @@ export interface ImpactMetrics {
   wastePrevented: number;
   costSaved: number;
   disastersResponded: number;
+  totalOperations?: number;
 }
 
 export interface NotificationPopup {
@@ -159,4 +165,6 @@ export interface NotificationPopup {
   type: 'agentforce' | 'alert' | 'recommendation';
   actions?: AlertAction[];
   autoClose?: boolean;
+  routeOptions?: Route[];
+  disasterId?: string;
 }

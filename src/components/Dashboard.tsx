@@ -35,7 +35,15 @@ const Dashboard: React.FC = () => {
     disastersResponded: 8
   });
   const [notifications, setNotifications] = useState<NotificationPopup[]>([]);
-  const [showNotification, setShowNotification] = useState(false);
+  
+  // Demo simulation state
+  const [simulationActive] = useState(true);
+  
+  // New demo workflow state
+  const [demoDisasterCounter, setDemoDisasterCounter] = useState(0);
+  const [pendingRoutes, setPendingRoutes] = useState<Route[]>([]);
+  const [showRouteSelectionModal, setShowRouteSelectionModal] = useState(false);
+  const [currentRouteOptions, setCurrentRouteOptions] = useState<Route[]>([]);
 
   const handleDisasterClick = (disaster: Disaster) => {
     setSelectedDisaster(disaster);
@@ -80,30 +88,39 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleAlertAction = (alertId: string, actionType: string) => {
+  const handleAlertAction = (alertId: string, actionType: string, actionId?: string) => {
+    const alert = alerts.find(a => a.id === alertId);
+    
+    
     // Update alert status
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId 
-        ? { ...alert, status: 'awaiting_resolution' as const }
-        : alert
+    setAlerts(prev => prev.map(alertItem => 
+      alertItem.id === alertId 
+        ? { ...alertItem, status: actionType === 'approve' ? 'resolved' as const : 'awaiting_resolution' as const }
+        : alertItem
     ));
 
-    // Create notification popup
+    // Create appropriate notification
+    const actionMessages = {
+      approve: `${alert?.recommendations?.[0]?.title || 'Action'} has been approved and is now in progress.`,
+      view_route: 'Route details have been accessed. Check the map for updated information.',
+      contact: 'Contact request has been initiated. Response teams will be notified.',
+      report_issue: 'Issue has been reported to the appropriate teams for investigation.'
+    };
+    
     const notification: NotificationPopup = {
       id: `notif-${Date.now()}`,
-      title: 'Action Processed',
-      message: `${actionType} action has been initiated. Status updated.`,
-      type: 'agentforce',
+      title: actionType === 'approve' ? 'Action Approved' : 'Action Processed',
+      message: actionMessages[actionType as keyof typeof actionMessages] || `${actionType} action completed.`,
+      type: actionType === 'approve' ? 'agentforce' : 'alert',
       autoClose: true
     };
 
     setNotifications(prev => [...prev, notification]);
-    setShowNotification(true);
 
     // Auto-close notification
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
-    }, 4000);
+    }, actionType === 'approve' ? 8000 : 5000);
   };
 
   const handleShipmentStatusUpdate = (shipmentId: string, newStatus: Shipment['status']) => {
@@ -129,34 +146,93 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Real-time updates simulation
+  // Enhanced real-time simulation engine
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Simulate random updates
-      if (Math.random() < 0.4) {
-        // Update impact metrics
+    if (!simulationActive) return;
+    
+    const simulationInterval = setInterval(() => {
+      
+      // Progressive needs matching for all disasters
+      setDisasters(prev => prev.map(disaster => ({
+        ...disaster,
+        needs: disaster.needs.map(need => {
+          const currentMatched = need.quantityMatched;
+          const requested = need.quantityRequested;
+          const maxIncrease = Math.min(requested * 0.02, 5000); // Max 2% increase or 5000 units
+          const increase = Math.floor(Math.random() * maxIncrease);
+          
+          return {
+            ...need,
+            quantityMatched: Math.min(currentMatched + increase, requested)
+          };
+        })
+      })));
+      
+      // Update shipment statuses with realistic progression
+      setShipments(prev => prev.map(shipment => {
+        if (Math.random() < 0.15) { // 15% chance of status update
+          const statusProgression = {
+            'loading': 'in_transit',
+            'in_transit': Math.random() < 0.9 ? 'in_transit' : 'delivered',
+            'delayed': Math.random() < 0.7 ? 'delayed' : 'in_transit',
+            'delivered': 'delivered',
+            'exception': 'exception'
+          };
+          
+          const newStatus = statusProgression[shipment.status] as Shipment['status'];
+          if (newStatus !== shipment.status) {
+            // Update impact metrics when shipments are delivered
+            if (newStatus === 'delivered') {
+              setImpactMetrics(prev => ({
+                ...prev,
+                peopleHelped: prev.peopleHelped + Math.floor(Math.random() * 8000) + 2000,
+                wastePrevented: prev.wastePrevented + Math.floor(Math.random() * 3000) + 1000,
+                costSaved: prev.costSaved + Math.floor(Math.random() * 25000) + 10000
+              }));
+            }
+            
+            return { ...shipment, status: newStatus };
+          }
+        }
+        return shipment;
+      }));
+      
+      // Progressive impact metrics updates
+      if (Math.random() < 0.6) {
         setImpactMetrics(prev => ({
-          peopleHelped: prev.peopleHelped + Math.floor(Math.random() * 1000),
-          wastePrevented: prev.wastePrevented + Math.floor(Math.random() * 500),
-          costSaved: prev.costSaved + Math.floor(Math.random() * 5000),
+          peopleHelped: prev.peopleHelped + Math.floor(Math.random() * 2000) + 500,
+          wastePrevented: prev.wastePrevented + Math.floor(Math.random() * 800) + 200,
+          costSaved: prev.costSaved + Math.floor(Math.random() * 8000) + 2000,
           disastersResponded: prev.disastersResponded
         }));
       }
-
-      // Occasionally add new notifications
-      if (Math.random() < 0.2) {
+      
+      // Resolve some alerts gradually
+      if (Math.random() < 0.1) {
+        setAlerts(prev => prev.map(alert => {
+          if (alert.status === 'awaiting_resolution' && Math.random() < 0.3) {
+            return { ...alert, status: 'resolved' as const };
+          }
+          return alert;
+        }));
+      }
+      
+      // Occasional Agentforce notifications
+      if (Math.random() < 0.15) {
         const agentforceMessages = [
-          'New resource match found automatically',
-          'Route optimization completed',
-          'Inventory level warning threshold reached',
-          'Corporate donation processed successfully',
-          'Alternative supplier identified'
+          'Auto-matching algorithm found new resource matches',
+          'Route optimization completed - 12% efficiency improvement',
+          'Corporate donation batch processed from 3 partners',
+          'Predictive analysis identified potential supply shortage',
+          'Alternative logistics route activated automatically',
+          'Resource allocation rebalanced across 5 centers',
+          'Emergency procurement recommendations generated'
         ];
         
         const message = agentforceMessages[Math.floor(Math.random() * agentforceMessages.length)];
         const notification: NotificationPopup = {
           id: `auto-${Date.now()}`,
-          title: ' Agentforce Update',
+          title: 'System Update',
           message,
           type: 'agentforce',
           autoClose: true
@@ -166,105 +242,265 @@ const Dashboard: React.FC = () => {
         
         setTimeout(() => {
           setNotifications(prev => prev.filter(n => n.id !== notification.id));
-        }, 5000);
+        }, 6000);
       }
-    }, 10000);
+      
+    }, 3000); // Update every 3 seconds for smooth progression
 
-    return () => clearInterval(interval);
-  }, []);
-
-  // Typhoon Genesis simulation
-  useEffect(() => {
-    const typhoonTimeout = setTimeout(() => {
-      const typhoonDisaster: Disaster = {
-        id: 'disaster-typhoon-genesis',
-        name: 'Typhoon Genesis',
-        type: 'hurricane',
-        severity: 'critical',
-        location: {
-          lat: 14.5995,
-          lng: 120.9842,
-          name: 'Manila, Philippines'
+    return () => clearInterval(simulationInterval);
+  }, [simulationActive]);
+  
+  // Generate San Francisco location for new disaster
+  const generateDisasterLocation = () => {
+    return { lat: 37.7749, lng: -122.4194, name: 'San Francisco, California, USA' };
+  };
+  
+  // Calculate distance between two locations
+  const calculateDistance = (loc1: { lat: number; lng: number }, loc2: { lat: number; lng: number }) => {
+    return Math.sqrt(
+      Math.pow(loc1.lat - loc2.lat, 2) + 
+      Math.pow(loc1.lng - loc2.lng, 2)
+    );
+  };
+  
+  // Generate multiple route options for a disaster location
+  const generateRouteOptions = (disasterLocation: { lat: number; lng: number; name: string }, disasterCounter: number) => {
+    // Calculate distances to all centers
+    const centersWithDistances = operationalCenters.map(center => ({
+      center,
+      distance: calculateDistance(center.location, disasterLocation)
+    })).sort((a, b) => a.distance - b.distance);
+    
+    const routes: Route[] = [];
+    
+    // Primary route - nearest center (AI recommended)
+    const primaryCenter = centersWithDistances[0].center;
+    routes.push({
+      id: `demo-route-${disasterCounter}-primary`,
+      origin: primaryCenter.location,
+      destination: disasterLocation,
+      confirmed: false,
+      resources: [
+        { type: 'Emergency Water Supply', quantity: 50000, unit: 'liters' },
+        { type: 'Medical Supplies', quantity: 25000, unit: 'kits' },
+        { type: 'Emergency Food Rations', quantity: 40000, unit: 'packages' }
+      ],
+      estimatedDuration: '18 hours',
+      priority: 'critical',
+      routeType: 'primary',
+      costEstimate: '$125,000',
+      aiConfidence: 92,
+      advantages: ['Shortest distance', 'Ample inventory', 'Fastest deployment'],
+      risks: ['High demand center']
+    });
+    
+    // Alternative route 1 - second nearest center
+    if (centersWithDistances.length > 1) {
+      const altCenter1 = centersWithDistances[1].center;
+      routes.push({
+        id: `demo-route-${disasterCounter}-alt1`,
+        origin: altCenter1.location,
+        destination: disasterLocation,
+        confirmed: false,
+        resources: [
+          { type: 'Emergency Water Supply', quantity: 45000, unit: 'liters' },
+          { type: 'Medical Supplies', quantity: 30000, unit: 'kits' },
+          { type: 'Emergency Food Rations', quantity: 35000, unit: 'packages' }
+        ],
+        estimatedDuration: '24 hours',
+        priority: 'high',
+        routeType: 'alternative',
+        costEstimate: '$148,000',
+        aiConfidence: 78,
+        advantages: ['Lower congestion', 'Better medical supplies', 'Backup capacity'],
+        risks: ['Longer transit time', 'Higher cost']
+      });
+    }
+    
+    // Alternative route 2 - third option with different characteristics
+    if (centersWithDistances.length > 2) {
+      const altCenter2 = centersWithDistances[2].center;
+      routes.push({
+        id: `demo-route-${disasterCounter}-alt2`,
+        origin: altCenter2.location,
+        destination: disasterLocation,
+        confirmed: false,
+        resources: [
+          { type: 'Emergency Water Supply', quantity: 60000, unit: 'liters' },
+          { type: 'Medical Supplies', quantity: 20000, unit: 'kits' },
+          { type: 'Emergency Food Rations', quantity: 50000, unit: 'packages' }
+        ],
+        estimatedDuration: '36 hours',
+        priority: 'medium',
+        routeType: 'alternative',
+        costEstimate: '$95,000',
+        aiConfidence: 65,
+        advantages: ['Most water supply', 'Cost effective', 'Large capacity'],
+        risks: ['Longest transit time', 'Lower medical supplies']
+      });
+    }
+    
+    return routes;
+  };
+  
+  // Create new disaster with route recommendations
+  const createNewDisaster = () => {
+    const disasterCounter = demoDisasterCounter + 1;
+    setDemoDisasterCounter(disasterCounter);
+    
+    const location = generateDisasterLocation();
+    const routeOptions = generateRouteOptions(location, disasterCounter);
+    
+    const disasterTypes = ['hurricane', 'earthquake', 'flood', 'wildfire', 'tornado'] as const;
+    
+    const newDisaster: Disaster = {
+      id: `demo-disaster-${disasterCounter}`,
+      name: `San Francisco Emergency ${disasterCounter}`,
+      type: disasterTypes[Math.floor(Math.random() * disasterTypes.length)],
+      severity: 'critical', // Always critical for red urgency indicator
+      location,
+      affectedPopulation: Math.floor(Math.random() * 500000) + 50000,
+      dateTime: new Date().toISOString(),
+      needs: [
+        {
+          id: `demo-need-${disasterCounter}-1`,
+          category: 'Water',
+          specificItem: 'Emergency Water Supply',
+          quantityRequested: Math.floor(Math.random() * 100000) + 10000,
+          quantityMatched: 0,
+          priority: 'high',
+          source: 'Local Authorities'
         },
-        affectedPopulation: 2300000,
-        dateTime: new Date().toISOString(),
-        needs: [
+        {
+          id: `demo-need-${disasterCounter}-2`,
+          category: 'Medical',
+          specificItem: 'Medical Supplies',
+          quantityRequested: Math.floor(Math.random() * 50000) + 5000,
+          quantityMatched: 0,
+          priority: 'high',
+          source: 'Emergency Services'
+        },
+        {
+          id: `demo-need-${disasterCounter}-3`,
+          category: 'Food',
+          specificItem: 'Emergency Food Rations',
+          quantityRequested: Math.floor(Math.random() * 75000) + 8000,
+          quantityMatched: 0,
+          priority: 'medium',
+          source: 'Relief Organizations'
+        }
+      ]
+    };
+    
+    // Add disaster
+    setDisasters(prev => [...prev, newDisaster]);
+    
+    // Add route options to pending routes
+    setPendingRoutes(prev => [...prev, ...routeOptions]);
+    
+    // Show notification with route recommendation
+    const notification: NotificationPopup = {
+      id: `disaster-notification-${newDisaster.id}`,
+      title: 'New Disaster Detected',
+      message: `${newDisaster.name} in ${location.name}. ${newDisaster.affectedPopulation.toLocaleString()} people affected. Multiple route options available.`,
+      type: 'alert',
+      autoClose: false,
+      actions: [
+        { id: 'select-route', label: 'Select Route', type: 'approve', primary: true },
+        { id: 'view-disaster', label: 'View Disaster Details', type: 'view_route' }
+      ],
+      routeOptions: routeOptions,
+      disasterId: newDisaster.id
+    };
+    
+    setNotifications(prev => [...prev, notification]);
+    
+    // Update impact metrics
+    setImpactMetrics(prev => ({
+      ...prev,
+      disastersResponded: prev.disastersResponded + 1
+    }));
+  };
+  
+  // Handle route approval from notification
+  const handleRouteApproval = (routeId: string) => {
+    const route = pendingRoutes.find(r => r.id === routeId);
+    if (route) {
+      // Confirm the route and add it to active routes
+      const confirmedRoute = { ...route, confirmed: true };
+      setRoutes(prev => [...prev, confirmedRoute]);
+      
+      // Extract disaster counter from route ID to remove all related routes
+      const disasterCounter = routeId.split('-')[2]; // e.g., "demo-route-1-primary" -> "1"
+      
+      // Remove all pending routes for this disaster (primary + alternatives)
+      setPendingRoutes(prev => prev.filter(r => !r.id.includes(`demo-route-${disasterCounter}`)));
+      
+      // Create a shipment for this route
+      const newShipment: Shipment = {
+        id: `DEMO-${Date.now()}`,
+        origin: route.origin.name,
+        destination: route.destination.name,
+        status: 'loading',
+        estimatedArrival: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        logisticsPartner: 'Emergency Response Team',
+        manifest: route.resources.map(resource => ({
+          item: resource.type,
+          quantity: resource.quantity,
+          unit: resource.unit,
+          corporateDonor: 'Emergency Reserve'
+        })),
+        timeline: [
           {
-            id: 'typhoon-need-1',
-            category: 'Water',
-            specificItem: 'Emergency Water Supply',
-            quantityRequested: 1000000,
-            quantityMatched: 0,
-            priority: 'high',
-            source: 'NDRRMC Philippines'
-          },
-          {
-            id: 'typhoon-need-2',
-            category: 'Shelter',
-            specificItem: 'Emergency Evacuation Centers',
-            quantityRequested: 500,
-            quantityMatched: 0,
-            priority: 'high',
-            source: 'Red Cross Philippines'
-          },
-          {
-            id: 'typhoon-need-3',
-            category: 'Food',
-            specificItem: 'Emergency Food Rations',
-            quantityRequested: 750000,
-            quantityMatched: 0,
-            priority: 'high',
-            source: 'UN WFP'
+            timestamp: new Date().toISOString(),
+            event: 'Route approved - Emergency deployment initiated',
+            location: route.origin.name
           }
         ]
       };
-
-      setDisasters(prev => [...prev, typhoonDisaster]);
-
-      // Add corresponding alert
-      const typhoonAlert: Alert = {
-        id: 'alert-typhoon-genesis',
-        type: 'urgent',
-        message: 'BREAKING: Typhoon Genesis makes landfall in Philippines - 2.3M people affected',
-        timestamp: new Date().toISOString(),
-        relatedId: 'disaster-typhoon-genesis',
-        relatedType: 'disaster',
-        status: 'active',
-        recommendations: [
-          {
-            id: 'typhoon-rec-1',
-            title: 'Immediate Response Deployment',
-            description: 'Deploy emergency response teams and pre-positioned supplies from Singapore and Tokyo hubs immediately.',
-            costImpact: '+$125,000',
-            timeImpact: '6 hours to deployment',
-            actions: [
-              { id: 'typhoon-act-1', label: 'Deploy Now', type: 'approve', primary: true },
-              { id: 'typhoon-act-2', label: 'View Routes', type: 'view_route' },
-              { id: 'typhoon-act-3', label: 'Contact Hubs', type: 'contact' }
-            ]
-          }
-        ]
+      
+      setShipments(prev => [...prev, newShipment]);
+      
+      // Update impact metrics
+      setImpactMetrics(prev => ({
+        ...prev,
+        peopleHelped: prev.peopleHelped + Math.floor(Math.random() * 20000) + 10000,
+        costSaved: prev.costSaved + Math.floor(Math.random() * 50000) + 25000
+      }));
+      
+      // Show success notification
+      const successNotification: NotificationPopup = {
+        id: `route-approved-${Date.now()}`,
+        title: 'Route Approved',
+        message: `Emergency route from ${route.origin.name} to ${route.destination.name} has been activated. Resources are being deployed.`,
+        type: 'agentforce',
+        autoClose: true
       };
+      
+      setNotifications(prev => [...prev, successNotification]);
+      
+      setTimeout(() => {
+        setNotifications(prev => prev.filter(n => n.id !== successNotification.id));
+      }, 5000);
+    }
+  };
+  
+  // Keyboard event listener for 'D' key
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === 'd' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        // Only trigger if not typing in an input field
+        const target = event.target as HTMLElement;
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable) {
+          createNewDisaster();
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [demoDisasterCounter, operationalCenters]);
 
-      setAlerts(prev => [typhoonAlert, ...prev]);
-
-      // Show notification
-      const notification: NotificationPopup = {
-        id: 'typhoon-notification',
-        title: ' Critical Alert',
-        message: 'Typhoon Genesis has been detected. Immediate action required.',
-        type: 'alert',
-        autoClose: false,
-        actions: [
-          { id: 'view-disaster', label: 'View Disaster', type: 'approve', primary: true }
-        ]
-      };
-
-      setNotifications(prev => [...prev, notification]);
-    }, 30000); // Trigger after 30 seconds
-
-    return () => clearTimeout(typhoonTimeout);
-  }, []);
 
   const handleAddInventory = (centerId: string, item: Partial<InventoryItem>) => {
     setOperationalCenters(prev => prev.map(center => 
@@ -440,6 +676,7 @@ const Dashboard: React.FC = () => {
             onFilterChange={handleSidebarFilterChange}
             onAddDonation={handleAddDonation}
             onManualAllocation={handleManualAllocation}
+            liveMetrics={impactMetrics}
           />
         </motion.div>
 
@@ -716,10 +953,23 @@ const Dashboard: React.FC = () => {
                       onClick={() => {
                         if (action.type === 'approve') {
                           // Handle specific actions
-                          if (notification.id === 'typhoon-notification') {
-                            const typhoonDisaster = disasters.find(d => d.id === 'disaster-typhoon-genesis');
-                            if (typhoonDisaster) {
-                              handleDisasterClick(typhoonDisaster);
+                          // Handle notification-specific actions
+                          if (notification.id.startsWith('disaster-notification-')) {
+                            if (action.id === 'select-route') {
+                              const disasterId = notification.id.replace('disaster-notification-', '');
+                              if (notification.routeOptions) {
+                                setCurrentRouteOptions(notification.routeOptions);
+                                // setSelectedDisasterId(disasterId); // Reserved for future use
+                                setShowRouteSelectionModal(true);
+                                // Close the notification
+                                setNotifications(prev => prev.filter(n => n.id !== notification.id));
+                              }
+                            } else if (action.id === 'view-disaster') {
+                              const disasterId = notification.id.replace('disaster-notification-', '');
+                              const disaster = disasters.find(d => d.id === disasterId);
+                              if (disaster) {
+                                handleDisasterClick(disaster);
+                              }
                             }
                           }
                         }
@@ -735,6 +985,408 @@ const Dashboard: React.FC = () => {
             </div>
           </motion.div>
         ))}
+      </AnimatePresence>
+      
+      {/* Route Selection Modal - Minimal Design */}
+      <AnimatePresence>
+        {showRouteSelectionModal && currentRouteOptions.length > 0 && (
+          <motion.div
+            className="route-selection-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowRouteSelectionModal(false)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10000,
+              padding: '20px'
+            }}
+          >
+            <motion.div
+              className="route-selection-modal"
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                backgroundColor: '#1e293b',
+                borderRadius: '4px',
+                border: '1px solid #334155',
+                maxWidth: '1200px',
+                width: '100%',
+                maxHeight: '90vh',
+                overflow: 'hidden',
+                position: 'relative'
+              }}
+            >
+              {/* Header */}
+              <div style={{
+                backgroundColor: '#1e293b',
+                color: '#e2e8f0',
+                padding: '1rem 1.5rem',
+                borderBottom: '1px solid #334155',
+                position: 'relative'
+              }}>
+                <button 
+                  onClick={() => setShowRouteSelectionModal(false)}
+                  style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '1rem',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  ×
+                </button>
+                
+                <h2 style={{
+                  margin: 0,
+                  fontSize: '1.125rem',
+                  fontWeight: '500',
+                  color: '#e2e8f0',
+                  letterSpacing: '-0.025em'
+                }}>Route Selection</h2>
+                <p style={{
+                  margin: '0.25rem 0 0 0',
+                  fontSize: '0.875rem',
+                  color: '#94a3b8',
+                  fontWeight: '400'
+                }}>Choose deployment route for emergency response</p>
+              </div>
+
+              {/* Content */}
+              <div style={{
+                padding: '1.5rem',
+                overflowY: 'auto',
+                maxHeight: 'calc(90vh - 100px)',
+                backgroundColor: '#1e293b'
+              }}>
+                <div style={{
+                  display: 'grid',
+                  gap: '1rem',
+                  gridTemplateColumns: currentRouteOptions.length === 1 ? '1fr' : 
+                                     currentRouteOptions.length === 2 ? '1fr 1fr' : '1fr 1fr 1fr'
+                }}>
+                  {currentRouteOptions.map((route, index) => {
+                    const isPrimary = route.routeType === 'primary';
+                    return (
+                      <div
+                        key={route.id}
+                        style={{
+                          background: '#0f172a',
+                          border: isPrimary 
+                            ? '1px solid #3b82f6'
+                            : '1px solid #334155',
+                          borderRadius: '4px',
+                          padding: '1rem',
+                          position: 'relative'
+                        }}
+                      >
+                        {/* Route Badge */}
+                        <div style={{
+                          position: 'absolute',
+                          top: '0.5rem',
+                          right: '0.5rem',
+                          background: isPrimary ? '#3b82f6' : '#475569',
+                          color: '#ffffff',
+                          padding: '2px 6px',
+                          borderRadius: '2px',
+                          fontSize: '0.625rem',
+                          fontWeight: '500',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em'
+                        }}>
+                          {isPrimary ? 'PRIMARY' : 'ALT'}
+                        </div>
+
+                        {/* Route Info */}
+                        <div style={{ marginBottom: '1rem', paddingRight: '3rem' }}>
+                          <div style={{
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            color: '#e2e8f0',
+                            marginBottom: '0.25rem'
+                          }}>
+                            Route {index + 1}
+                          </div>
+                          
+                          <div style={{
+                            fontSize: '0.75rem',
+                            color: '#94a3b8',
+                            marginBottom: '0.75rem'
+                          }}>
+                            Confidence: {route.aiConfidence || 0}%
+                          </div>
+                          
+                          <div style={{
+                            width: '100%',
+                            height: '2px',
+                            backgroundColor: '#374151',
+                            borderRadius: '1px',
+                            overflow: 'hidden'
+                          }}>
+                            <div style={{
+                              width: `${route.aiConfidence || 0}%`,
+                              height: '100%',
+                              backgroundColor: isPrimary ? '#3b82f6' : '#64748b'
+                            }}></div>
+                          </div>
+                        </div>
+
+                        {/* Route Path */}
+                        <div style={{
+                          marginBottom: '1rem',
+                          padding: '0.75rem',
+                          backgroundColor: '#1e293b',
+                          borderRadius: '4px',
+                          border: '1px solid #334155'
+                        }}>
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                          }}>
+                            <div>
+                              <div style={{
+                                fontSize: '0.625rem',
+                                color: '#94a3b8',
+                                textTransform: 'uppercase',
+                                marginBottom: '0.25rem'
+                              }}>FROM</div>
+                              <div style={{
+                                fontSize: '0.75rem',
+                                color: '#e2e8f0'
+                              }}>{route.origin.name}</div>
+                            </div>
+                            <div style={{
+                              color: '#64748b',
+                              fontSize: '0.875rem'
+                            }}>→</div>
+                            <div>
+                              <div style={{
+                                fontSize: '0.625rem',
+                                color: '#94a3b8',
+                                textTransform: 'uppercase',
+                                marginBottom: '0.25rem'
+                              }}>TO</div>
+                              <div style={{
+                                fontSize: '0.75rem',
+                                color: '#e2e8f0'
+                              }}>{route.destination.name}</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Metrics */}
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr 1fr',
+                          gap: '0.5rem',
+                          marginBottom: '1rem'
+                        }}>
+                          <div style={{
+                            padding: '0.5rem',
+                            backgroundColor: '#1e293b',
+                            borderRadius: '4px',
+                            border: '1px solid #334155'
+                          }}>
+                            <div style={{
+                              fontSize: '0.625rem',
+                              color: '#94a3b8',
+                              textTransform: 'uppercase',
+                              marginBottom: '0.25rem'
+                            }}>TIME</div>
+                            <div style={{
+                              fontSize: '0.75rem',
+                              fontWeight: '500',
+                              color: '#e2e8f0'
+                            }}>{route.estimatedDuration}</div>
+                          </div>
+                          
+                          <div style={{
+                            padding: '0.5rem',
+                            backgroundColor: '#1e293b',
+                            borderRadius: '4px',
+                            border: '1px solid #334155'
+                          }}>
+                            <div style={{
+                              fontSize: '0.625rem',
+                              color: '#94a3b8',
+                              textTransform: 'uppercase',
+                              marginBottom: '0.25rem'
+                            }}>COST</div>
+                            <div style={{
+                              fontSize: '0.75rem',
+                              fontWeight: '500',
+                              color: '#e2e8f0'
+                            }}>{route.costEstimate}</div>
+                          </div>
+                          
+                          <div style={{
+                            padding: '0.5rem',
+                            backgroundColor: '#1e293b',
+                            borderRadius: '4px',
+                            border: '1px solid #334155'
+                          }}>
+                            <div style={{
+                              fontSize: '0.625rem',
+                              color: '#94a3b8',
+                              textTransform: 'uppercase',
+                              marginBottom: '0.25rem'
+                            }}>PRIORITY</div>
+                            <div style={{
+                              fontSize: '0.75rem',
+                              fontWeight: '500',
+                              color: route.priority === 'critical' ? '#dc2626' : 
+                                     route.priority === 'high' ? '#ea580c' :
+                                     route.priority === 'medium' ? '#d97706' : '#65a30d'
+                            }}>{route.priority.toUpperCase()}</div>
+                          </div>
+                        </div>
+
+                        {/* Resources */}
+                        <div style={{ marginBottom: '1rem' }}>
+                          <div style={{
+                            fontSize: '0.625rem',
+                            color: '#94a3b8',
+                            textTransform: 'uppercase',
+                            marginBottom: '0.5rem',
+                            letterSpacing: '0.05em'
+                          }}>RESOURCES</div>
+                          <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.25rem'
+                          }}>
+                            {route.resources.map((resource, idx) => (
+                              <div key={idx} style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                padding: '0.25rem 0',
+                                fontSize: '0.75rem'
+                              }}>
+                                <span style={{ color: '#94a3b8' }}>{resource.type}</span>
+                                <span style={{ color: '#e2e8f0', fontWeight: '500' }}>
+                                  {resource.quantity.toLocaleString()} {resource.unit}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Pros and Cons */}
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: '1rem',
+                          marginBottom: '1rem'
+                        }}>
+                          <div>
+                            <div style={{
+                              fontSize: '0.625rem',
+                              color: '#10b981',
+                              textTransform: 'uppercase',
+                              marginBottom: '0.5rem',
+                              letterSpacing: '0.05em'
+                            }}>ADVANTAGES</div>
+                            <div style={{
+                              fontSize: '0.75rem',
+                              color: '#cbd5e1',
+                              lineHeight: '1.4'
+                            }}>
+                              {route.advantages?.map((advantage, idx) => (
+                                <div key={idx} style={{ marginBottom: '0.25rem' }}>
+                                  • {advantage}
+                                </div>
+                              )) || []}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <div style={{
+                              fontSize: '0.625rem',
+                              color: '#dc2626',
+                              textTransform: 'uppercase',
+                              marginBottom: '0.5rem',
+                              letterSpacing: '0.05em'
+                            }}>CONSIDERATIONS</div>
+                            <div style={{
+                              fontSize: '0.75rem',
+                              color: '#cbd5e1',
+                              lineHeight: '1.4'
+                            }}>
+                              {route.risks?.map((risk, idx) => (
+                                <div key={idx} style={{ marginBottom: '0.25rem' }}>
+                                  • {risk}
+                                </div>
+                              )) || []}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Button */}
+                        <button
+                          onClick={() => {
+                            handleRouteApproval(route.id);
+                            setShowRouteSelectionModal(false);
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            fontSize: '0.75rem',
+                            fontWeight: '500',
+                            border: isPrimary ? '1px solid #3b82f6' : '1px solid #334155',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            backgroundColor: isPrimary ? '#3b82f6' : 'transparent',
+                            color: isPrimary ? '#ffffff' : '#e2e8f0',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (isPrimary) {
+                              e.currentTarget.style.backgroundColor = '#2563eb';
+                            } else {
+                              e.currentTarget.style.backgroundColor = '#334155';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (isPrimary) {
+                              e.currentTarget.style.backgroundColor = '#3b82f6';
+                            } else {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }
+                          }}
+                        >
+                          Select Route
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
