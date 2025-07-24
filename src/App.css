@@ -285,6 +285,34 @@ body {
   border: 1px solid #334155;
 }
 
+/* Remove any unwanted grid lines or borders from Leaflet map */
+.world-map .leaflet-container {
+  background: transparent;
+}
+
+.world-map .leaflet-pane {
+  background: transparent;
+}
+
+.world-map .leaflet-overlay-pane {
+  background: transparent;
+}
+
+.world-map .leaflet-tile-pane {
+  background: transparent;
+}
+
+/* Remove any default borders or grid lines */
+.world-map * {
+  border: none !important;
+  outline: none !important;
+}
+
+.world-map .leaflet-tile {
+  border: none !important;
+  outline: none !important;
+}
+
 .map-svg {
   width: 100%;
   height: 100%;
