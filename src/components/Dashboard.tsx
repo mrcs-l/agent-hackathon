@@ -33,6 +33,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleRouteClick = (route: Route) => {
+    console.log('Route clicked in Dashboard:', route.id); // Debug log
     setSelectedRoute(route);
     setViewMode('route-detail');
   };
@@ -274,46 +275,55 @@ const Dashboard: React.FC = () => {
                 <button onClick={handleBackToDashboard} className="back-button">
                   ← Back to Dashboard
                 </button>
-                <h2>Route Details</h2>
+                <h2>Route Details: {selectedRoute.id}</h2>
               </div>
+
               <div className="route-detail">
                 <div className="route-summary">
-                  <h3>Route {selectedRoute.id}</h3>
+                  <h3>Route Summary</h3>
                   <div className="summary-stats">
                     <div className="stat">
-                      <span className="label">From:</span>
+                      <span className="label">Origin:</span>
                       <span className="value">{selectedRoute.origin.name}</span>
                     </div>
                     <div className="stat">
-                      <span className="label">To:</span>
+                      <span className="label">Destination:</span>
                       <span className="value">{selectedRoute.destination.name}</span>
                     </div>
                     <div className="stat">
                       <span className="label">Status:</span>
                       <span className={`value status-${selectedRoute.confirmed ? 'confirmed' : 'pending'}`}>
-                        {selectedRoute.confirmed ? 'CONFIRMED' : 'PENDING'}
+                        {selectedRoute.confirmed ? 'Confirmed' : 'Pending'}
                       </span>
-                    </div>
-                    <div className="stat">
-                      <span className="label">Duration:</span>
-                      <span className="value">{selectedRoute.estimatedDuration}</span>
                     </div>
                     <div className="stat">
                       <span className="label">Priority:</span>
                       <span className={`value priority-${selectedRoute.priority}`}>
-                        {selectedRoute.priority.toUpperCase()}
+                        {selectedRoute.priority.charAt(0).toUpperCase() + selectedRoute.priority.slice(1)}
+                      </span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Estimated Duration:</span>
+                      <span className="value">{selectedRoute.estimatedDuration}</span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Total Resources:</span>
+                      <span className="value">
+                        {selectedRoute.resources.reduce((total, resource) => total + resource.quantity, 0).toLocaleString()} units
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="resources-table">
+
+                <div className="route-resources">
                   <h4>Resources Being Transported</h4>
-                  <table>
+                  <table className="needs-table">
                     <thead>
                       <tr>
                         <th>Resource Type</th>
                         <th>Quantity</th>
                         <th>Unit</th>
+                        <th>Priority</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -322,10 +332,109 @@ const Dashboard: React.FC = () => {
                           <td>{resource.type}</td>
                           <td>{resource.quantity.toLocaleString()}</td>
                           <td>{resource.unit}</td>
+                          <td>
+                            <span className={`priority priority-${selectedRoute.priority}`}>
+                              {selectedRoute.priority.charAt(0).toUpperCase() + selectedRoute.priority.slice(1)}
+                            </span>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                <div className="route-coordinates">
+                  <h4>Route Coordinates</h4>
+                  <div className="coordinates-grid">
+                    <div className="coordinate-section">
+                      <h5>Origin</h5>
+                      <div className="coordinate-details">
+                        <p><strong>Location:</strong> {selectedRoute.origin.name}</p>
+                        <p><strong>Latitude:</strong> {selectedRoute.origin.lat.toFixed(4)}°</p>
+                        <p><strong>Longitude:</strong> {selectedRoute.origin.lng.toFixed(4)}°</p>
+                      </div>
+                    </div>
+                    <div className="coordinate-section">
+                      <h5>Destination</h5>
+                      <div className="coordinate-details">
+                        <p><strong>Location:</strong> {selectedRoute.destination.name}</p>
+                        <p><strong>Latitude:</strong> {selectedRoute.destination.lat.toFixed(4)}°</p>
+                        <p><strong>Longitude:</strong> {selectedRoute.destination.lng.toFixed(4)}°</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="route-status">
+                  <h4>Route Status</h4>
+                  <div className="status-indicators">
+                    <div className={`status-indicator ${selectedRoute.confirmed ? 'confirmed' : 'pending'}`}>
+                      <div className="status-icon">
+                        {selectedRoute.confirmed ? '✓' : '⏳'}
+                      </div>
+                      <div className="status-info">
+                        <h5>{selectedRoute.confirmed ? 'Route Confirmed' : 'Route Pending'}</h5>
+                        <p>
+                          {selectedRoute.confirmed 
+                            ? 'This route has been confirmed and is actively being used for resource transportation.'
+                            : 'This route is pending confirmation and may be subject to changes.'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`status-indicator priority-${selectedRoute.priority}`}>
+                      <div className="status-icon">
+                        {selectedRoute.priority === 'critical' ? '🚨' : 
+                         selectedRoute.priority === 'high' ? '⚠️' : 'ℹ️'}
+                      </div>
+                      <div className="status-info">
+                        <h5>Priority Level: {selectedRoute.priority.charAt(0).toUpperCase() + selectedRoute.priority.slice(1)}</h5>
+                        <p>
+                          {selectedRoute.priority === 'critical' ? 'This route is critical for emergency response operations.' :
+                           selectedRoute.priority === 'high' ? 'This route is high priority and should be expedited.' :
+                           'This route is standard priority for regular operations.'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="route-timeline">
+                  <h4>Route Timeline</h4>
+                  <div className="timeline-events">
+                    <div className="timeline-event">
+                      <div className="timeline-time">Route Created</div>
+                      <div className="timeline-content">
+                        <div className="event-text">Route {selectedRoute.id} was created</div>
+                        <div className="event-location">Origin: {selectedRoute.origin.name}</div>
+                      </div>
+                    </div>
+                    <div className="timeline-event">
+                      <div className="timeline-time">Status Update</div>
+                      <div className="timeline-content">
+                        <div className="event-text">
+                          Route {selectedRoute.confirmed ? 'confirmed' : 'pending confirmation'}
+                        </div>
+                        <div className="event-location">Priority: {selectedRoute.priority}</div>
+                      </div>
+                    </div>
+                    <div className="timeline-event">
+                      <div className="timeline-time">Resource Loading</div>
+                      <div className="timeline-content">
+                        <div className="event-text">
+                          {selectedRoute.resources.reduce((total, resource) => total + resource.quantity, 0).toLocaleString()} units loaded
+                        </div>
+                        <div className="event-location">Origin: {selectedRoute.origin.name}</div>
+                      </div>
+                    </div>
+                    <div className="timeline-event">
+                      <div className="timeline-time">Estimated Arrival</div>
+                      <div className="timeline-content">
+                        <div className="event-text">Route completion expected</div>
+                        <div className="event-location">Destination: {selectedRoute.destination.name}</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>

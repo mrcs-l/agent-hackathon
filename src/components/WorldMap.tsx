@@ -215,9 +215,11 @@ const WorldMap: React.FC<WorldMapProps> = ({
           routePath as L.LatLngExpression[],
           {
             color: '#3b82f6', // Blue color
-            weight: 1,
-            opacity: 0.8,
-            dashArray: route.confirmed ? undefined : '10, 10' // Solid if confirmed, dotted if not
+            weight: 3, // Make lines thicker for easier clicking
+            opacity: 0.9, // Make them more visible
+            dashArray: route.confirmed ? undefined : '10, 10', // Solid if confirmed, dotted if not
+            interactive: true, // Ensure the polyline is clickable
+            bubblingMouseEvents: false // Prevent event bubbling
           }
         )
           .bindPopup(`
@@ -238,7 +240,17 @@ const WorldMap: React.FC<WorldMapProps> = ({
               </div>
             </div>
           `)
-          .on('click', () => onRouteClick(route));
+          .on('click', (e) => {
+            console.log('Route clicked:', route.id); // Debug log
+            e.originalEvent.stopPropagation(); // Prevent event bubbling
+            onRouteClick(route);
+          })
+          .on('mouseover', () => {
+            polyline.setStyle({ weight: 5, opacity: 1 }); // Highlight on hover
+          })
+          .on('mouseout', () => {
+            polyline.setStyle({ weight: 3, opacity: 0.9 }); // Reset on mouse out
+          });
 
         polyline.addTo(leafletMapRef.current);
         markersRef.current[`route-${route.id}`] = polyline as any;

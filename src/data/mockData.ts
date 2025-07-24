@@ -2,130 +2,544 @@ import { Disaster, OperationalCenter, Shipment, Alert, Route } from '../types';
 
 export const mockDisasters: Disaster[] = [
   {
-    id: '1',
-    name: 'Hurricane Delta',
+    id: 'disaster-1',
+    name: 'Hurricane Maria',
     type: 'hurricane',
-    location: {
-      lat: 25.7617,
-      lng: -80.1918,
-      name: 'Miami, Florida'
-    },
     severity: 'critical',
-    affectedPopulation: 2500000,
+    location: {
+      lat: 18.2208,
+      lng: -66.5901,
+      name: 'San Juan, Puerto Rico'
+    },
+    affectedPopulation: 3400000,
     dateTime: '2024-07-20T14:30:00Z',
     needs: [
-      {
-        id: '1',
-        category: 'Water',
-        specificItem: 'Bottled Water (1L)',
-        quantityRequested: 500000,
-        quantityMatched: 350000,
-        priority: 'high',
-        source: 'FEMA'
-      },
-      {
-        id: '2',
-        category: 'Food',
-        specificItem: 'Emergency Food Rations',
-        quantityRequested: 200000,
-        quantityMatched: 150000,
-        priority: 'high',
-        source: 'Red Cross'
-      }
+      { id: '1', category: 'Water', specificItem: 'Bottled Water (1L)', quantityRequested: 5000000, quantityMatched: 3500000, priority: 'high', source: 'FEMA' },
+      { id: '2', category: 'Food', specificItem: 'Emergency Food Rations', quantityRequested: 2000000, quantityMatched: 1500000, priority: 'high', source: 'Red Cross' },
+      { id: '3', category: 'Medical', specificItem: 'First Aid Kits', quantityRequested: 50000, quantityMatched: 35000, priority: 'high', source: 'WHO' },
+      { id: '4', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 100000, quantityMatched: 75000, priority: 'high', source: 'UNHCR' }
     ]
   },
   {
-    id: '2',
-    name: 'Earthquake Zeta',
+    id: 'disaster-2',
+    name: 'Earthquake in Turkey',
     type: 'earthquake',
+    severity: 'critical',
     location: {
-      lat: 37.7749,
-      lng: -122.4194,
-      name: 'San Francisco, California'
+      lat: 37.0662,
+      lng: 37.3833,
+      name: 'Gaziantep, Turkey'
     },
-    severity: 'high',
-    affectedPopulation: 875000,
+    affectedPopulation: 15000000,
     dateTime: '2024-07-22T08:15:00Z',
     needs: [
-      {
-        id: '3',
-        category: 'Shelter',
-        specificItem: 'Emergency Tents',
-        quantityRequested: 15000,
-        quantityMatched: 8000,
-        priority: 'high',
-        source: 'Local Government'
-      }
+      { id: '5', category: 'Search and Rescue', specificItem: 'Search Equipment', quantityRequested: 1000, quantityMatched: 800, priority: 'high', source: 'UNDAC' },
+      { id: '6', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 100000, quantityMatched: 75000, priority: 'high', source: 'WHO' },
+      { id: '7', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 500000, quantityMatched: 400000, priority: 'high', source: 'UNHCR' },
+      { id: '8', category: 'Water', specificItem: 'Water Containers', quantityRequested: 10000000, quantityMatched: 7000000, priority: 'high', source: 'UNICEF' }
     ]
   },
   {
-    id: '3',
-    name: 'Midwest Floods',
+    id: 'disaster-3',
+    name: 'Flooding in Pakistan',
     type: 'flood',
+    severity: 'critical',
     location: {
-      lat: 41.8781,
-      lng: -87.6298,
-      name: 'Chicago, Illinois'
+      lat: 30.3753,
+      lng: 69.3451,
+      name: 'Quetta, Pakistan'
     },
-    severity: 'medium',
-    affectedPopulation: 1200000,
+    affectedPopulation: 33000000,
     dateTime: '2024-07-18T22:00:00Z',
     needs: [
-      {
-        id: '4',
-        category: 'Medical',
-        specificItem: 'First Aid Kits',
-        quantityRequested: 25000,
-        quantityMatched: 20000,
-        priority: 'medium',
-        source: 'Local NGOs'
-      }
+      { id: '9', category: 'Water', specificItem: 'Water Purification Systems', quantityRequested: 50000, quantityMatched: 35000, priority: 'high', source: 'UNICEF' },
+      { id: '10', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 1000000, quantityMatched: 750000, priority: 'high', source: 'UNHCR' },
+      { id: '11', category: 'Food', specificItem: 'Food Rations', quantityRequested: 5000000, quantityMatched: 3500000, priority: 'high', source: 'WFP' },
+      { id: '12', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 200000, quantityMatched: 150000, priority: 'high', source: 'WHO' }
+    ]
+  },
+  {
+    id: 'disaster-4',
+    name: 'Wildfire in Australia',
+    type: 'wildfire',
+    severity: 'high',
+    location: {
+      lat: -33.8688,
+      lng: 151.2093,
+      name: 'Sydney, Australia'
+    },
+    affectedPopulation: 5000000,
+    dateTime: '2024-07-21T10:45:00Z',
+    needs: [
+      { id: '13', category: 'Firefighting', specificItem: 'Fire Equipment', quantityRequested: 5000, quantityMatched: 4000, priority: 'high', source: 'Local Fire Dept' },
+      { id: '14', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 100000, quantityMatched: 75000, priority: 'high', source: 'Red Cross' },
+      { id: '15', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 50000, quantityMatched: 35000, priority: 'medium', source: 'WHO' },
+      { id: '16', category: 'Water', specificItem: 'Water Containers', quantityRequested: 2000000, quantityMatched: 1500000, priority: 'medium', source: 'UNICEF' }
+    ]
+  },
+  {
+    id: 'disaster-5',
+    name: 'Tornado Outbreak',
+    type: 'tornado',
+    severity: 'high',
+    location: {
+      lat: 39.8283,
+      lng: -98.5795,
+      name: 'Kansas, USA'
+    },
+    affectedPopulation: 2000000,
+    dateTime: '2024-07-19T16:20:00Z',
+    needs: [
+      { id: '17', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 50000, quantityMatched: 40000, priority: 'high', source: 'FEMA' },
+      { id: '18', category: 'Medical', specificItem: 'First Aid Kits', quantityRequested: 25000, quantityMatched: 20000, priority: 'high', source: 'Red Cross' },
+      { id: '19', category: 'Food', specificItem: 'Food Rations', quantityRequested: 1000000, quantityMatched: 750000, priority: 'high', source: 'WFP' },
+      { id: '20', category: 'Water', specificItem: 'Water Containers', quantityRequested: 1000000, quantityMatched: 750000, priority: 'medium', source: 'UNICEF' }
+    ]
+  },
+  {
+    id: 'disaster-6',
+    name: 'Earthquake in Japan',
+    type: 'earthquake',
+    severity: 'critical',
+    location: {
+      lat: 35.6762,
+      lng: 139.6503,
+      name: 'Tokyo, Japan'
+    },
+    affectedPopulation: 14000000,
+    dateTime: '2024-07-23T12:30:00Z',
+    needs: [
+      { id: '21', category: 'Search and Rescue', specificItem: 'Search Equipment', quantityRequested: 2000, quantityMatched: 1800, priority: 'high', source: 'JDR' },
+      { id: '22', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 200000, quantityMatched: 150000, priority: 'high', source: 'WHO' },
+      { id: '23', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 300000, quantityMatched: 250000, priority: 'high', source: 'UNHCR' },
+      { id: '24', category: 'Water', specificItem: 'Water Containers', quantityRequested: 5000000, quantityMatched: 4000000, priority: 'high', source: 'UNICEF' }
+    ]
+  },
+  {
+    id: 'disaster-7',
+    name: 'Flooding in Brazil',
+    type: 'flood',
+    severity: 'high',
+    location: {
+      lat: -23.5505,
+      lng: -46.6333,
+      name: 'São Paulo, Brazil'
+    },
+    affectedPopulation: 12000000,
+    dateTime: '2024-07-17T09:15:00Z',
+    needs: [
+      { id: '25', category: 'Water', specificItem: 'Water Purification Systems', quantityRequested: 30000, quantityMatched: 25000, priority: 'high', source: 'UNICEF' },
+      { id: '26', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 400000, quantityMatched: 300000, priority: 'high', source: 'UNHCR' },
+      { id: '27', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 120000, quantityMatched: 90000, priority: 'high', source: 'WHO' },
+      { id: '28', category: 'Food', specificItem: 'Food Rations', quantityRequested: 2500000, quantityMatched: 2000000, priority: 'medium', source: 'WFP' }
+    ]
+  },
+  {
+    id: 'disaster-8',
+    name: 'Wildfire in Canada',
+    type: 'wildfire',
+    severity: 'high',
+    location: {
+      lat: 53.5461,
+      lng: -113.4938,
+      name: 'Edmonton, Canada'
+    },
+    affectedPopulation: 3000000,
+    dateTime: '2024-07-24T14:45:00Z',
+    needs: [
+      { id: '29', category: 'Firefighting', specificItem: 'Fire Equipment', quantityRequested: 3000, quantityMatched: 2500, priority: 'high', source: 'Local Fire Dept' },
+      { id: '30', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 150000, quantityMatched: 120000, priority: 'high', source: 'Red Cross' },
+      { id: '31', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 60000, quantityMatched: 45000, priority: 'medium', source: 'WHO' },
+      { id: '32', category: 'Water', specificItem: 'Water Containers', quantityRequested: 1500000, quantityMatched: 1200000, priority: 'medium', source: 'UNICEF' }
     ]
   }
 ];
 
 export const mockOperationalCenters: OperationalCenter[] = [
   {
-    id: '1',
+    id: 'center-1',
     name: 'Dallas Distribution Center',
     location: {
       lat: 32.7767,
       lng: -96.7970,
-      name: 'Dallas, Texas'
+      name: 'Dallas, Texas, USA'
     },
     inventoryStatus: 'ample',
-    totalItems: 125000,
+    totalItems: 250000,
     totalCategories: 45,
-    inventoryValue: 2500000,
-    inventory: []
+    inventoryValue: 8500000,
+    inventory: [
+      {
+        id: 'item-1',
+        productType: 'Water',
+        specificItem: 'Bottled Water (1L)',
+        quantity: 50000,
+        corporatePartner: 'Coca-Cola',
+        dateReceived: '2024-07-15',
+        location: 'Warehouse A',
+        condition: 'new'
+      },
+      {
+        id: 'item-2',
+        productType: 'Food',
+        specificItem: 'Emergency Food Rations',
+        quantity: 25000,
+        corporatePartner: 'General Mills',
+        dateReceived: '2024-07-10',
+        location: 'Warehouse B',
+        condition: 'new'
+      }
+    ]
   },
   {
-    id: '2',
+    id: 'center-2',
     name: 'Atlanta Hub',
     location: {
       lat: 33.7490,
       lng: -84.3880,
-      name: 'Atlanta, Georgia'
+      name: 'Atlanta, Georgia, USA'
     },
     inventoryStatus: 'moderate',
-    totalItems: 85000,
+    totalItems: 180000,
     totalCategories: 38,
-    inventoryValue: 1800000,
-    inventory: []
+    inventoryValue: 6200000,
+    inventory: [
+      {
+        id: 'item-3',
+        productType: 'Medical',
+        specificItem: 'First Aid Kits',
+        quantity: 10000,
+        corporatePartner: 'Johnson & Johnson',
+        dateReceived: '2024-07-12',
+        location: 'Warehouse C',
+        condition: 'new'
+      }
+    ]
   },
   {
-    id: '3',
+    id: 'center-3',
     name: 'Seattle Warehouse',
     location: {
       lat: 47.6062,
       lng: -122.3321,
-      name: 'Seattle, Washington'
+      name: 'Seattle, Washington, USA'
+    },
+    inventoryStatus: 'ample',
+    totalItems: 220000,
+    totalCategories: 42,
+    inventoryValue: 7800000,
+    inventory: [
+      {
+        id: 'item-4',
+        productType: 'Medical',
+        specificItem: 'First Aid Kits',
+        quantity: 10000,
+        corporatePartner: 'Microsoft',
+        dateReceived: '2024-07-08',
+        location: 'Warehouse D',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-4',
+    name: 'London Distribution Center',
+    location: {
+      lat: 51.5074,
+      lng: -0.1278,
+      name: 'London, UK'
+    },
+    inventoryStatus: 'ample',
+    totalItems: 300000,
+    totalCategories: 50,
+    inventoryValue: 12000000,
+    inventory: [
+      {
+        id: 'item-5',
+        productType: 'Shelter',
+        specificItem: 'Emergency Tents',
+        quantity: 5000,
+        corporatePartner: 'Unilever',
+        dateReceived: '2024-07-14',
+        location: 'Warehouse E',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-5',
+    name: 'Frankfurt Hub',
+    location: {
+      lat: 50.1109,
+      lng: 8.6821,
+      name: 'Frankfurt, Germany'
+    },
+    inventoryStatus: 'moderate',
+    totalItems: 200000,
+    totalCategories: 40,
+    inventoryValue: 8500000,
+    inventory: [
+      {
+        id: 'item-6',
+        productType: 'Medical',
+        specificItem: 'Medical Kits',
+        quantity: 8000,
+        corporatePartner: 'Bayer',
+        dateReceived: '2024-07-11',
+        location: 'Warehouse F',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-6',
+    name: 'Dubai Distribution Center',
+    location: {
+      lat: 25.2048,
+      lng: 55.2708,
+      name: 'Dubai, UAE'
+    },
+    inventoryStatus: 'ample',
+    totalItems: 280000,
+    totalCategories: 48,
+    inventoryValue: 11000000,
+    inventory: [
+      {
+        id: 'item-7',
+        productType: 'Water',
+        specificItem: 'Water Purification Systems',
+        quantity: 2000,
+        corporatePartner: 'Emirates',
+        dateReceived: '2024-07-13',
+        location: 'Warehouse G',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-7',
+    name: 'Singapore Hub',
+    location: {
+      lat: 1.3521,
+      lng: 103.8198,
+      name: 'Singapore'
+    },
+    inventoryStatus: 'ample',
+    totalItems: 320000,
+    totalCategories: 55,
+    inventoryValue: 13500000,
+    inventory: [
+      {
+        id: 'item-8',
+        productType: 'Food',
+        specificItem: 'Food Rations',
+        quantity: 15000,
+        corporatePartner: 'Singapore Airlines',
+        dateReceived: '2024-07-09',
+        location: 'Warehouse H',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-8',
+    name: 'Tokyo Distribution Center',
+    location: {
+      lat: 35.6762,
+      lng: 139.6503,
+      name: 'Tokyo, Japan'
+    },
+    inventoryStatus: 'moderate',
+    totalItems: 250000,
+    totalCategories: 45,
+    inventoryValue: 10000000,
+    inventory: [
+      {
+        id: 'item-9',
+        productType: 'Medical',
+        specificItem: 'Medical Kits',
+        quantity: 12000,
+        corporatePartner: 'Toyota',
+        dateReceived: '2024-07-16',
+        location: 'Warehouse I',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-9',
+    name: 'Sydney Hub',
+    location: {
+      lat: -33.8688,
+      lng: 151.2093,
+      name: 'Sydney, Australia'
+    },
+    inventoryStatus: 'moderate',
+    totalItems: 180000,
+    totalCategories: 35,
+    inventoryValue: 7500000,
+    inventory: [
+      {
+        id: 'item-10',
+        productType: 'Shelter',
+        specificItem: 'Emergency Tents',
+        quantity: 3000,
+        corporatePartner: 'BHP',
+        dateReceived: '2024-07-07',
+        location: 'Warehouse J',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-10',
+    name: 'São Paulo Distribution Center',
+    location: {
+      lat: -23.5505,
+      lng: -46.6333,
+      name: 'São Paulo, Brazil'
     },
     inventoryStatus: 'low',
-    totalItems: 35000,
-    totalCategories: 22,
-    inventoryValue: 750000,
-    inventory: []
+    totalItems: 120000,
+    totalCategories: 30,
+    inventoryValue: 4500000,
+    inventory: [
+      {
+        id: 'item-11',
+        productType: 'Water',
+        specificItem: 'Water Containers',
+        quantity: 8000,
+        corporatePartner: 'Vale',
+        dateReceived: '2024-07-05',
+        location: 'Warehouse K',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-11',
+    name: 'Mumbai Hub',
+    location: {
+      lat: 19.0760,
+      lng: 72.8777,
+      name: 'Mumbai, India'
+    },
+    inventoryStatus: 'moderate',
+    totalItems: 200000,
+    totalCategories: 40,
+    inventoryValue: 6500000,
+    inventory: [
+      {
+        id: 'item-12',
+        productType: 'Food',
+        specificItem: 'Food Rations',
+        quantity: 20000,
+        corporatePartner: 'Tata Group',
+        dateReceived: '2024-07-12',
+        location: 'Warehouse L',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-12',
+    name: 'Cape Town Distribution Center',
+    location: {
+      lat: -33.9249,
+      lng: 18.4241,
+      name: 'Cape Town, South Africa'
+    },
+    inventoryStatus: 'low',
+    totalItems: 100000,
+    totalCategories: 25,
+    inventoryValue: 3500000,
+    inventory: [
+      {
+        id: 'item-13',
+        productType: 'Medical',
+        specificItem: 'Medical Kits',
+        quantity: 5000,
+        corporatePartner: 'De Beers',
+        dateReceived: '2024-07-10',
+        location: 'Warehouse M',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-13',
+    name: 'Mexico City Hub',
+    location: {
+      lat: 19.4326,
+      lng: -99.1332,
+      name: 'Mexico City, Mexico'
+    },
+    inventoryStatus: 'moderate',
+    totalItems: 160000,
+    totalCategories: 35,
+    inventoryValue: 5500000,
+    inventory: [
+      {
+        id: 'item-14',
+        productType: 'Shelter',
+        specificItem: 'Emergency Tents',
+        quantity: 4000,
+        corporatePartner: 'Cemex',
+        dateReceived: '2024-07-11',
+        location: 'Warehouse N',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-14',
+    name: 'Toronto Distribution Center',
+    location: {
+      lat: 43.6532,
+      lng: -79.3832,
+      name: 'Toronto, Canada'
+    },
+    inventoryStatus: 'ample',
+    totalItems: 240000,
+    totalCategories: 45,
+    inventoryValue: 9000000,
+    inventory: [
+      {
+        id: 'item-15',
+        productType: 'Water',
+        specificItem: 'Water Purification Systems',
+        quantity: 1500,
+        corporatePartner: 'Rogers Communications',
+        dateReceived: '2024-07-13',
+        location: 'Warehouse O',
+        condition: 'new'
+      }
+    ]
+  },
+  {
+    id: 'center-15',
+    name: 'Istanbul Hub',
+    location: {
+      lat: 41.0082,
+      lng: 28.9784,
+      name: 'Istanbul, Turkey'
+    },
+    inventoryStatus: 'moderate',
+    totalItems: 170000,
+    totalCategories: 38,
+    inventoryValue: 6000000,
+    inventory: [
+      {
+        id: 'item-16',
+        productType: 'Medical',
+        specificItem: 'Medical Kits',
+        quantity: 7000,
+        corporatePartner: 'Turkish Airlines',
+        dateReceived: '2024-07-09',
+        location: 'Warehouse P',
+        condition: 'new'
+      }
+    ]
   }
 ];
 
@@ -259,9 +673,9 @@ export const mockRoutes: Route[] = [
       name: 'Dallas Distribution Center'
     },
     destination: {
-      lat: 25.7617,
-      lng: -80.1918,
-      name: 'Miami, Florida'
+      lat: 18.2208,
+      lng: -66.5901,
+      name: 'San Juan, Puerto Rico'
     },
     confirmed: true,
     resources: [
@@ -280,17 +694,17 @@ export const mockRoutes: Route[] = [
       name: 'Atlanta Hub'
     },
     destination: {
-      lat: 37.7749,
-      lng: -122.4194,
-      name: 'San Francisco, California'
+      lat: 37.0662,
+      lng: 37.3833,
+      name: 'Gaziantep, Turkey'
     },
     confirmed: false,
     resources: [
       { type: 'Emergency Tents', quantity: 2000, unit: 'tents' },
-      { type: 'Blankets', quantity: 5000, unit: 'blankets' }
+      { type: 'Medical Kits', quantity: 5000, unit: 'kits' }
     ],
     estimatedDuration: '36 hours',
-    priority: 'high'
+    priority: 'critical'
   },
   {
     id: 'route-3',
@@ -300,9 +714,9 @@ export const mockRoutes: Route[] = [
       name: 'Seattle Warehouse'
     },
     destination: {
-      lat: 41.8781,
-      lng: -87.6298,
-      name: 'Chicago, Illinois'
+      lat: 30.3753,
+      lng: 69.3451,
+      name: 'Quetta, Pakistan'
     },
     confirmed: true,
     resources: [
@@ -310,26 +724,346 @@ export const mockRoutes: Route[] = [
       { type: 'Water Purification Tablets', quantity: 50000, unit: 'tablets' }
     ],
     estimatedDuration: '28 hours',
-    priority: 'medium'
+    priority: 'critical'
   },
   {
     id: 'route-4',
     origin: {
-      lat: 33.7490,
-      lng: -84.3880,
-      name: 'Atlanta Hub'
+      lat: 51.5074,
+      lng: -0.1278,
+      name: 'London Distribution Center'
     },
     destination: {
-      lat: 25.7617,
-      lng: -80.1918,
-      name: 'Miami, Florida'
+      lat: -33.8688,
+      lng: 151.2093,
+      name: 'Sydney, Australia'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Emergency Tents', quantity: 3000, unit: 'tents' },
+      { type: 'Medical Supplies', quantity: 8000, unit: 'kits' }
+    ],
+    estimatedDuration: '42 hours',
+    priority: 'high'
+  },
+  {
+    id: 'route-5',
+    origin: {
+      lat: 50.1109,
+      lng: 8.6821,
+      name: 'Frankfurt Hub'
+    },
+    destination: {
+      lat: 35.6762,
+      lng: 139.6503,
+      name: 'Tokyo, Japan'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Medical Kits', quantity: 12000, unit: 'kits' },
+      { type: 'Search Equipment', quantity: 500, unit: 'sets' }
+    ],
+    estimatedDuration: '38 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-6',
+    origin: {
+      lat: 25.2048,
+      lng: 55.2708,
+      name: 'Dubai Distribution Center'
+    },
+    destination: {
+      lat: 23.6850,
+      lng: 90.3563,
+      name: 'Dhaka, Bangladesh'
     },
     confirmed: false,
     resources: [
-      { type: 'Generators', quantity: 100, unit: 'units' },
-      { type: 'Fuel', quantity: 5000, unit: 'gallons' }
+      { type: 'Water Purification Systems', quantity: 2000, unit: 'systems' },
+      { type: 'Emergency Tents', quantity: 8000, unit: 'tents' }
+    ],
+    estimatedDuration: '24 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-7',
+    origin: {
+      lat: 1.3521,
+      lng: 103.8198,
+      name: 'Singapore Hub'
+    },
+    destination: {
+      lat: 14.5995,
+      lng: 120.9842,
+      name: 'Manila, Philippines'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Food Rations', quantity: 15000, unit: 'packages' },
+      { type: 'Medical Kits', quantity: 18000, unit: 'kits' }
     ],
     estimatedDuration: '12 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-8',
+    origin: {
+      lat: 19.0760,
+      lng: 72.8777,
+      name: 'Mumbai Hub'
+    },
+    destination: {
+      lat: 30.3753,
+      lng: 69.3451,
+      name: 'Quetta, Pakistan'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Food Rations', quantity: 20000, unit: 'packages' },
+      { type: 'Emergency Tents', quantity: 10000, unit: 'tents' }
+    ],
+    estimatedDuration: '8 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-9',
+    origin: {
+      lat: -33.9249,
+      lng: 18.4241,
+      name: 'Cape Town Distribution Center'
+    },
+    destination: {
+      lat: -1.2921,
+      lng: 36.8219,
+      name: 'Nairobi, Kenya'
+    },
+    confirmed: false,
+    resources: [
+      { type: 'Medical Kits', quantity: 5000, unit: 'kits' },
+      { type: 'Water Containers', quantity: 12000, unit: 'containers' }
+    ],
+    estimatedDuration: '16 hours',
     priority: 'high'
+  },
+  {
+    id: 'route-10',
+    origin: {
+      lat: 19.4326,
+      lng: -99.1332,
+      name: 'Mexico City Hub'
+    },
+    destination: {
+      lat: -23.5505,
+      lng: -46.6333,
+      name: 'São Paulo, Brazil'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Emergency Tents', quantity: 4000, unit: 'tents' },
+      { type: 'Medical Supplies', quantity: 12000, unit: 'kits' }
+    ],
+    estimatedDuration: '20 hours',
+    priority: 'high'
+  },
+  {
+    id: 'route-11',
+    origin: {
+      lat: 43.6532,
+      lng: -79.3832,
+      name: 'Toronto Distribution Center'
+    },
+    destination: {
+      lat: 53.5461,
+      lng: -113.4938,
+      name: 'Edmonton, Canada'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Water Purification Systems', quantity: 1500, unit: 'systems' },
+      { type: 'Firefighting Equipment', quantity: 3000, unit: 'sets' }
+    ],
+    estimatedDuration: '6 hours',
+    priority: 'high'
+  },
+  {
+    id: 'route-12',
+    origin: {
+      lat: 41.0082,
+      lng: 28.9784,
+      name: 'Istanbul Hub'
+    },
+    destination: {
+      lat: 37.0662,
+      lng: 37.3833,
+      name: 'Gaziantep, Turkey'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Medical Kits', quantity: 7000, unit: 'kits' },
+      { type: 'Search Equipment', quantity: 1000, unit: 'sets' }
+    ],
+    estimatedDuration: '4 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-13',
+    origin: {
+      lat: 32.7767,
+      lng: -96.7970,
+      name: 'Dallas Distribution Center'
+    },
+    destination: {
+      lat: 39.8283,
+      lng: -98.5795,
+      name: 'Kansas, USA'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Emergency Tents', quantity: 50000, unit: 'tents' },
+      { type: 'Medical Supplies', quantity: 25000, unit: 'kits' }
+    ],
+    estimatedDuration: '8 hours',
+    priority: 'high'
+  },
+  {
+    id: 'route-14',
+    origin: {
+      lat: 51.5074,
+      lng: -0.1278,
+      name: 'London Distribution Center'
+    },
+    destination: {
+      lat: 37.0662,
+      lng: 37.3833,
+      name: 'Gaziantep, Turkey'
+    },
+    confirmed: false,
+    resources: [
+      { type: 'Emergency Tents', quantity: 500000, unit: 'tents' },
+      { type: 'Medical Kits', quantity: 100000, unit: 'kits' }
+    ],
+    estimatedDuration: '32 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-15',
+    origin: {
+      lat: 1.3521,
+      lng: 103.8198,
+      name: 'Singapore Hub'
+    },
+    destination: {
+      lat: 30.3753,
+      lng: 69.3451,
+      name: 'Quetta, Pakistan'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Water Purification Systems', quantity: 50000, unit: 'systems' },
+      { type: 'Emergency Tents', quantity: 1000000, unit: 'tents' }
+    ],
+    estimatedDuration: '16 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-16',
+    origin: {
+      lat: 25.2048,
+      lng: 55.2708,
+      name: 'Dubai Distribution Center'
+    },
+    destination: {
+      lat: 35.6762,
+      lng: 139.6503,
+      name: 'Tokyo, Japan'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Medical Kits', quantity: 200000, unit: 'kits' },
+      { type: 'Search Equipment', quantity: 2000, unit: 'sets' }
+    ],
+    estimatedDuration: '26 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-17',
+    origin: {
+      lat: -33.9249,
+      lng: 18.4241,
+      name: 'Cape Town Distribution Center'
+    },
+    destination: {
+      lat: -23.5505,
+      lng: -46.6333,
+      name: 'São Paulo, Brazil'
+    },
+    confirmed: false,
+    resources: [
+      { type: 'Medical Kits', quantity: 120000, unit: 'kits' },
+      { type: 'Emergency Tents', quantity: 400000, unit: 'tents' }
+    ],
+    estimatedDuration: '28 hours',
+    priority: 'high'
+  },
+  {
+    id: 'route-18',
+    origin: {
+      lat: 43.6532,
+      lng: -79.3832,
+      name: 'Toronto Distribution Center'
+    },
+    destination: {
+      lat: 53.5461,
+      lng: -113.4938,
+      name: 'Edmonton, Canada'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Firefighting Equipment', quantity: 3000, unit: 'sets' },
+      { type: 'Emergency Tents', quantity: 150000, unit: 'tents' }
+    ],
+    estimatedDuration: '6 hours',
+    priority: 'high'
+  },
+  {
+    id: 'route-19',
+    origin: {
+      lat: 19.0760,
+      lng: 72.8777,
+      name: 'Mumbai Hub'
+    },
+    destination: {
+      lat: 23.6850,
+      lng: 90.3563,
+      name: 'Dhaka, Bangladesh'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Water', quantity: 8000000, unit: 'liters' },
+      { type: 'Emergency Tents', quantity: 800000, unit: 'tents' }
+    ],
+    estimatedDuration: '12 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-20',
+    origin: {
+      lat: 1.3521,
+      lng: 103.8198,
+      name: 'Singapore Hub'
+    },
+    destination: {
+      lat: 14.5995,
+      lng: 120.9842,
+      name: 'Manila, Philippines'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Search Equipment', quantity: 1500, unit: 'sets' },
+      { type: 'Emergency Tents', quantity: 600000, unit: 'tents' }
+    ],
+    estimatedDuration: '12 hours',
+    priority: 'critical'
   }
 ];
