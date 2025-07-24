@@ -71,25 +71,25 @@ const WorldMap: React.FC<WorldMapProps> = ({
   return (
     <div className="world-map">
       <svg viewBox="0 0 900 500" className="map-svg">
-        <rect x="0" y="0" width="900" height="500" fill="#f0f9ff" />
+        <rect x="0" y="0" width="900" height="500" fill="#0f172a" />
         
         <g className="continents">
           <path
             d="M 150 150 Q 200 100 300 120 Q 400 130 450 160 Q 500 180 400 220 Q 300 240 200 220 Q 150 200 150 150 Z"
-            fill="#e5e7eb"
-            stroke="#d1d5db"
+            fill="#334155"
+            stroke="#475569"
             strokeWidth="1"
           />
           <path
             d="M 500 200 Q 600 180 700 200 Q 750 220 720 280 Q 680 320 600 300 Q 520 280 500 200 Z"
-            fill="#e5e7eb"
-            stroke="#d1d5db"
+            fill="#334155"
+            stroke="#475569"
             strokeWidth="1"
           />
           <path
             d="M 100 300 Q 200 280 300 300 Q 400 320 350 380 Q 300 400 200 380 Q 100 360 100 300 Z"
-            fill="#e5e7eb"
-            stroke="#d1d5db"
+            fill="#334155"
+            stroke="#475569"
             strokeWidth="1"
           />
         </g>
