@@ -41,10 +41,10 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
   
   const getStatusIcon = (status?: string) => {
     switch (status) {
-      case 'resolved': return '✅';
-      case 'awaiting_resolution': return '⏳';
+      case 'resolved': return '';
+      case 'awaiting_resolution': return '';
       case 'active': 
-      default: return '🔥';
+      default: return '';
     }
   };
 
@@ -94,7 +94,7 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
         {urgentAlerts.length > 0 && (
           <div className="alert-section urgent">
             <h4>
-              <span className="alert-icon">🚨</span>
+              <span className="alert-icon"></span>
               Urgent Alerts ({urgentAlerts.length})
             </h4>
             {urgentAlerts.map((alert) => (
@@ -121,7 +121,7 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
                 </div>
                 <div className="alert-actions">
                   <button className="alert-action-btn">
-                    {alert.recommendations ? '🎯 Action' : 'View'}
+                    {alert.recommendations ? ' Action' : 'View'}
                   </button>
                 </div>
               </motion.div>
@@ -132,7 +132,7 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
         {infoAlerts.length > 0 && (
           <div className="alert-section info">
             <h4>
-              <span className="alert-icon">ℹ️</span>
+              <span className="alert-icon"></span>
               Information ({infoAlerts.length})
             </h4>
             {infoAlerts.map((alert) => (
@@ -164,7 +164,7 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
 
         {urgentAlerts.length === 0 && infoAlerts.length === 0 && (
           <div className="no-alerts">
-            <div className="no-alerts-icon">✅</div>
+            <div className="no-alerts-icon"></div>
             <div className="no-alerts-message">All clear - no alerts at this time</div>
           </div>
         )}
@@ -192,7 +192,7 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
               onClick={e => e.stopPropagation()}
             >
               <div className="modal-header">
-                <h3>🤖 Human-in-the-Loop Agent</h3>
+                <h3> Human-in-the-Loop Agent</h3>
                 <p className="alert-context">{selectedAlert.message}</p>
               </div>
 
@@ -204,12 +204,12 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
                       <div className="impact-metrics">
                         {recommendation.costImpact && (
                           <span className={`impact-badge ${recommendation.costImpact.includes('+') ? 'negative' : 'positive'}`}>
-                            💰 {recommendation.costImpact}
+                             {recommendation.costImpact}
                           </span>
                         )}
                         {recommendation.timeImpact && (
                           <span className={`impact-badge ${recommendation.timeImpact.includes('+') ? 'negative' : 'positive'}`}>
-                            ⏱️ {recommendation.timeImpact}
+                             {recommendation.timeImpact}
                           </span>
                         )}
                       </div>
@@ -228,10 +228,10 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          {action.type === 'approve' && '✅ Approve Recommended Action'}
-                          {action.type === 'view_route' && '🗺️ View Alternative Route on Map'}
-                          {action.type === 'contact' && '📞 Contact Carrier'}
-                          {action.type === 'report_issue' && '⚠️ Report Issue'}
+                          {action.type === 'approve' && ' Approve Recommended Action'}
+                          {action.type === 'view_route' && ' View Alternative Route on Map'}
+                          {action.type === 'contact' && ' Contact Carrier'}
+                          {action.type === 'report_issue' && ' Report Issue'}
                         </motion.button>
                       ))}
                     </div>

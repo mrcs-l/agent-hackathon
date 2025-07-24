@@ -86,6 +86,25 @@ body {
   border-right: 1px solid #334155;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
+  /* Custom Scrollbar */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #475569 transparent; /* Firefox */
+}
+
+/* Chrome, Edge, and Safari */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 8px;
+  border: 2px solid transparent; /* Ensures thumb doesn’t shrink */
+}
+.sidebar:hover::-webkit-scrollbar-thumb {
+  background-color: #64748b;
 }
 
 .sidebar-collapsed {
@@ -2438,4 +2457,14 @@ body {
     transform: scale(1.2);
     opacity: 1;
   }
+}
+
+/* Live Metrics */
+.metric-value.active-disasters {
+  color: #ef4444; /* Bright red */
+}
+
+/* Sidebar active disasters count */
+.stat-number.disasters-count {
+  color: #ef4444; /* Bright red */
 }

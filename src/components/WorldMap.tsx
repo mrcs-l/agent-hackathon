@@ -66,8 +66,8 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return '#dc2626';
-      case 'high': return '#991b1b';
+      case 'critical': return '#ff3b3b'; /* Brighter red */
+      case 'high': return '#ff7f7f'; /* Light red */
       case 'medium': return '#d97706';
       case 'low': return '#65a30d';
       default: return '#6b7280';
@@ -96,12 +96,12 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
   const getDisasterIcon = (type: string) => {
     switch (type) {
-      case 'hurricane': return '🌀';
-      case 'earthquake': return '🏔️';
-      case 'flood': return '🌊';
-      case 'wildfire': return '🔥';
-      case 'tornado': return '🌪️';
-      default: return '⚠️';
+      case 'hurricane': return '';
+      case 'earthquake': return '';
+      case 'flood': return '';
+      case 'wildfire': return '';
+      case 'tornado': return '';
+      default: return '';
     }
   };
 
@@ -190,7 +190,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
               font-weight: 500;
               cursor: pointer;
               transition: background-color 0.2s;
-            ">📊 View Needs Assessment</button>
+            "> View Needs Assessment</button>
             <button id="view-shipments-${disaster.id}" style="
               flex: 1;
               padding: 8px 12px;
@@ -202,7 +202,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
               font-weight: 500;
               cursor: pointer;
               transition: background-color 0.2s;
-            ">📦 View Active Shipments</button>
+            "> View Active Shipments</button>
           </div>
           <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
             <div style="font-size: 11px; color: #6b7280;">
@@ -300,7 +300,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
             }
           ).bindPopup(`
             <div style="min-width: 250px;">
-              <h3 style="margin: 0 0 8px 0;">🚛 Shipment ${shipment.id}</h3>
+              <h3 style="margin: 0 0 8px 0;"> Shipment ${shipment.id}</h3>
               <p><strong>Status:</strong> <span style="color: ${getShipmentStatusColor(shipment.status)}; font-weight: bold;">${shipment.status.replace('_', ' ').toUpperCase()}</span></p>
               <p><strong>From:</strong> ${shipment.origin}</p>
               <p><strong>To:</strong> ${shipment.destination}</p>
@@ -342,7 +342,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
             icon: currentLocationIcon
           }).bindPopup(`
             <div>
-              <h3>📍 ${shipment.id} Current Position</h3>
+              <h3> ${shipment.id} Current Position</h3>
               <p><strong>Location:</strong> ${shipment.currentLocation.name}</p>
               <p><strong>Status:</strong> ${shipment.status.replace('_', ' ').toUpperCase()}</p>
             </div>

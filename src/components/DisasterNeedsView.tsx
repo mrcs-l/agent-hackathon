@@ -112,7 +112,7 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
         </button>
         <h2>Disaster Needs Assessment</h2>
         <button onClick={onViewActiveShipments} className="secondary-button">
-          📦 View Active Shipments
+           View Active Shipments
         </button>
       </div>
 
@@ -139,7 +139,7 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
 
         <div className="summary-panels">
           <div className="summary-panel">
-            <h4>🔥 Top 5 Unmet Needs</h4>
+            <h4> Top 5 Unmet Needs</h4>
             <div className="unmet-needs-list">
               {topUnmetNeeds.map((need, index) => (
                 <div key={need.id} className="unmet-need-item">
@@ -157,7 +157,7 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
           </div>
 
           <div className="summary-panel">
-            <h4>📊 Match Rate vs. Gaps</h4>
+            <h4> Match Rate vs. Gaps</h4>
             <div className="match-chart">
               {needs.map(need => {
                 const needMatchRate = (need.quantityMatched / need.quantityRequested) * 100;
@@ -182,7 +182,7 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
 
         <div className="matching-section">
           <div className="matching-header">
-            <h4>🤖 Agentforce Auto-Matching</h4>
+            <h4> Agentforce Auto-Matching</h4>
             <motion.button 
               onClick={handleMatchRemainingNeeds}
               disabled={isMatching}
@@ -196,7 +196,7 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
                   Matching... {matchingProgress.toFixed(0)}%
                 </>
               ) : (
-                '🎯 Match Remaining Needs'
+                ' Match Remaining Needs'
               )}
             </motion.button>
           </div>
@@ -261,7 +261,7 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
                             {need.quantityMatched.toLocaleString()}
                           </motion.span>
                           {matchPercentage >= 90 && (
-                            <span className="match-badge">✅ Nearly Complete</span>
+                            <span className="match-badge"> Nearly Complete</span>
                           )}
                         </div>
                       </td>
@@ -300,7 +300,7 @@ const DisasterNeedsView: React.FC<DisasterNeedsViewProps> = ({
         </div>
 
         <div className="real-time-counter">
-          <h4>📈 Live Impact Metrics</h4>
+          <h4> Live Impact Metrics</h4>
           <div className="counter-grid">
             <div className="counter-item">
               <div className="counter-value">

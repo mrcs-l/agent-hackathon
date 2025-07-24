@@ -99,9 +99,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           →
         </button>
         <div className="collapsed-stats">
-          <div className="stat-icon">🌍</div>
-          <div className="stat-icon">🏪</div>
-          <div className="stat-icon">🚛</div>
+          <div className="stat-icon"></div>
+          <div className="stat-icon"></div>
+          <div className="stat-icon"></div>
         </div>
       </div>
     );
@@ -123,15 +123,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="overview-stats">
         <div className="stat-card">
-          <div className="stat-icon">🌍</div>
+          <div className="stat-icon"></div>
           <div className="stat-content">
-            <div className="stat-number">{totalActiveDisasters}</div>
+            <div className="stat-number disasters-count">{totalActiveDisasters}</div>
             <div className="stat-label">Active Disasters</div>
           </div>
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon">🏪</div>
+          <div className="stat-icon"></div>
           <div className="stat-content">
             <div className="stat-number">{totalCentersOnline}</div>
             <div className="stat-label">Centers Online</div>
@@ -139,7 +139,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon">🚛</div>
+          <div className="stat-icon"></div>
           <div className="stat-content">
             <div className="stat-number">{totalShipmentsInTransit}</div>
             <div className="stat-label">Shipments En Route</div>
@@ -148,7 +148,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className="search-section">
-        <h4>🔍 Search & Filter</h4>
+        <h4> Search & Filter</h4>
         <input
           type="text"
           placeholder="Search disasters, centers, locations..."
@@ -253,7 +253,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             })}
             className="reset-filters"
           >
-            🔄 Reset All Filters
+             Reset All Filters
           </button>
         )}
       </div>
@@ -266,7 +266,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          💝 Add New Corporate Donation
+           Add New Corporate Donation
         </motion.button>
         <motion.button 
           className="action-button secondary"
@@ -274,14 +274,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          📋 Manual Allocation Request
+           Manual Allocation Request
         </motion.button>
         <motion.button 
           className="action-button tertiary"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          📊 Generate Impact Report
+           Generate Impact Report
         </motion.button>
       </div>
 
@@ -302,7 +302,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
-              <h3>💝 Add New Corporate Donation</h3>
+              <h3> Add New Corporate Donation</h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
@@ -349,7 +349,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
                 <div className="donation-summary">
                   <div className="estimated-impact">
-                    <h4>📈 Estimated Impact</h4>
+                    <h4> Estimated Impact</h4>
                     <div className="impact-stats">
                       <div className="impact-stat">
                         <span className="impact-number">~5,000</span>
@@ -363,7 +363,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                 </div>
                 <div className="form-actions">
-                  <button type="submit" className="submit-btn">💝 Submit Donation</button>
+                  <button type="submit" className="submit-btn"> Submit Donation</button>
                   <button type="button" onClick={() => setShowDonationModal(false)} className="cancel-btn">
                     Cancel
                   </button>
@@ -391,7 +391,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
-              <h3>📋 Manual Resource Allocation Request</h3>
+              <h3> Manual Resource Allocation Request</h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
@@ -436,10 +436,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <div className="form-group">
                     <label>Priority Level:</label>
                     <select name="priority" required>
-                      <option value="critical">🚨 Critical - Life Threatening</option>
-                      <option value="high">⚠️ High - Urgent Need</option>
-                      <option value="medium">📋 Medium - Important</option>
-                      <option value="low">ℹ️ Low - Standard</option>
+                      <option value="critical"> Critical - Life Threatening</option>
+                      <option value="high"> High - Urgent Need</option>
+                      <option value="medium"> Medium - Important</option>
+                      <option value="low"> Low - Standard</option>
                     </select>
                   </div>
                   <div className="form-group full-width">
@@ -452,10 +452,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                 </div>
                 <div className="allocation-warning">
-                  ⚠️ This request will bypass automated Agentforce matching and require manual approval from operations center.
+                   This request will bypass automated Agentforce matching and require manual approval from operations center.
                 </div>
                 <div className="form-actions">
-                  <button type="submit" className="submit-btn">📋 Submit Request</button>
+                  <button type="submit" className="submit-btn"> Submit Request</button>
                   <button type="button" onClick={() => setShowAllocationModal(false)} className="cancel-btn">
                     Cancel
                   </button>

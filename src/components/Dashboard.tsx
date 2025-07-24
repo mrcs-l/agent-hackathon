@@ -156,7 +156,7 @@ const Dashboard: React.FC = () => {
         const message = agentforceMessages[Math.floor(Math.random() * agentforceMessages.length)];
         const notification: NotificationPopup = {
           id: `auto-${Date.now()}`,
-          title: '🤖 Agentforce Update',
+          title: ' Agentforce Update',
           message,
           type: 'agentforce',
           autoClose: true
@@ -251,7 +251,7 @@ const Dashboard: React.FC = () => {
       // Show notification
       const notification: NotificationPopup = {
         id: 'typhoon-notification',
-        title: '🌪️ Critical Alert',
+        title: ' Critical Alert',
         message: 'Typhoon Genesis has been detected. Immediate action required.',
         type: 'alert',
         autoClose: false,
@@ -331,7 +331,7 @@ const Dashboard: React.FC = () => {
     // Show notification
     const notification: NotificationPopup = {
       id: `donation-${Date.now()}`,
-      title: '💝 Donation Added',
+      title: ' Donation Added',
       message: `${donation.quantity} ${donation.specificItem} from ${donation.corporatePartner} has been added to inventory.`,
       type: 'agentforce',
       autoClose: true
@@ -347,7 +347,7 @@ const Dashboard: React.FC = () => {
     // Process manual allocation request
     const notification: NotificationPopup = {
       id: `allocation-${Date.now()}`,
-      title: '📋 Allocation Request Submitted',
+      title: ' Allocation Request Submitted',
       message: `Manual allocation request for ${request.quantity} ${request.resourceType} has been submitted for review.`,
       type: 'alert',
       autoClose: true
@@ -359,11 +359,13 @@ const Dashboard: React.FC = () => {
     }, 5000);
   };
 
+  const activeDisastersCount = disasters.length;
+
   return (
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>Triageforce Command Center</h1>
+          <h1>Triageforce Command</h1>
           <div className="live-impact-metrics">
             <div className="metric-item">
               <motion.div 
@@ -402,7 +404,7 @@ const Dashboard: React.FC = () => {
               <div className="metric-label">Cost Saved</div>
             </div>
             <div className="metric-item">
-              <div className="metric-value">{impactMetrics.disastersResponded}</div>
+              <div className="metric-value active-disasters">{activeDisastersCount}</div>
               <div className="metric-label">Active Disasters</div>
             </div>
           </div>
@@ -594,7 +596,7 @@ const Dashboard: React.FC = () => {
                   <div className="status-indicators">
                     <div className={`status-indicator ${selectedRoute.confirmed ? 'confirmed' : 'pending'}`}>
                       <div className="status-icon">
-                        {selectedRoute.confirmed ? '✓' : '⏳'}
+                        {selectedRoute.confirmed ? '✓' : ''}
                       </div>
                       <div className="status-info">
                         <h5>{selectedRoute.confirmed ? 'Route Confirmed' : 'Route Pending'}</h5>
@@ -608,8 +610,8 @@ const Dashboard: React.FC = () => {
                     </div>
                     <div className={`status-indicator priority-${selectedRoute.priority}`}>
                       <div className="status-icon">
-                        {selectedRoute.priority === 'critical' ? '🚨' : 
-                         selectedRoute.priority === 'high' ? '⚠️' : 'ℹ️'}
+                        {selectedRoute.priority === 'critical' ? '' : 
+                         selectedRoute.priority === 'high' ? '' : ''}
                       </div>
                       <div className="status-info">
                         <h5>Priority Level: {selectedRoute.priority.charAt(0).toUpperCase() + selectedRoute.priority.slice(1)}</h5>

@@ -194,7 +194,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
         <button onClick={onBack} className="back-button">
           ← Back to Dashboard
         </button>
-        <h2>📦 Inventory Management: {center.name}</h2>
+        <h2> Inventory Management: {center.name}</h2>
       </div>
 
       <div className="inventory-summary">
@@ -225,7 +225,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
           <div className="search-bar">
             <input
               type="text"
-              placeholder="🔍 Search items, categories, or partners..."
+              placeholder=" Search items, categories, or partners..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -264,7 +264,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            ➕ Add New Inventory
+             Add New Inventory
           </motion.button>
           
           <motion.button
@@ -274,7 +274,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
             whileHover={{ scale: selectedItems.length > 0 ? 1.05 : 1 }}
             whileTap={{ scale: selectedItems.length > 0 ? 0.95 : 1 }}
           >
-            🚚 Initiate Shipment ({selectedItems.length})
+             Initiate Shipment ({selectedItems.length})
           </motion.button>
         </div>
       </div>
@@ -373,10 +373,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                         className={`status-indicator ${warningLevel}`}
                         style={{ color: getWarningColor(warningLevel) }}
                       >
-                        {warningLevel === 'critical' && '🚨 Critical'}
-                        {warningLevel === 'low' && '⚠️ Low'}
-                        {warningLevel === 'moderate' && '📊 Moderate'}
-                        {warningLevel === 'good' && '✅ Good'}
+                        {warningLevel === 'critical' && ' Critical'}
+                        {warningLevel === 'low' && ' Low'}
+                        {warningLevel === 'moderate' && ' Moderate'}
+                        {warningLevel === 'good' && ' Good'}
                       </span>
                     </td>
                   </tr>
@@ -404,7 +404,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
-              <h3>➕ Add New Inventory Item</h3>
+              <h3> Add New Inventory Item</h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
@@ -483,7 +483,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
-              <h3>🚚 Initiate Emergency Shipment</h3>
+              <h3> Initiate Emergency Shipment</h3>
               <div className="shipment-summary">
                 <p>Selected {selectedItems.length} items for shipment:</p>
                 <div className="selected-items">
@@ -526,7 +526,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               </div>
               <div className="form-actions">
                 <button onClick={handleInitiateShipment} className="submit-btn">
-                  🚚 Initiate Shipment
+                   Initiate Shipment
                 </button>
                 <button onClick={() => setShowShipmentModal(false)} className="cancel-btn">
                   Cancel

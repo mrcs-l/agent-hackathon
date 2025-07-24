@@ -144,7 +144,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               <div className="stat">
                 <span className="label">Current Location:</span>
                 <span className="value highlight">
-                  📍 {shipment.currentLocation?.name || 'Unknown'}
+                   {shipment.currentLocation?.name || 'Unknown'}
                 </span>
               </div>
               <div className="stat">
@@ -161,13 +161,13 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
           </div>
 
           <div className="mini-map-container">
-            <h4>📍 Current Position</h4>
+            <h4> Current Position</h4>
             <div className="mini-map">
               <div className="map-placeholder">
                 <div className="route-line"></div>
-                <div className="origin-marker">🏢</div>
-                <div className="current-marker">🚛</div>
-                <div className="destination-marker">🎯</div>
+                <div className="origin-marker"></div>
+                <div className="current-marker"></div>
+                <div className="destination-marker"></div>
                 <div className="coordinates">
                   <div>Origin: {shipment.origin}</div>
                   <div>Current: {shipment.currentLocation?.name}</div>
@@ -179,7 +179,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
         </div>
 
         <div className="action-buttons-panel">
-          <h4>🎮 Quick Actions</h4>
+          <h4> Quick Actions</h4>
           <div className="action-buttons">
             <motion.button
               onClick={handleContactCarrier}
@@ -187,7 +187,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              📞 Contact Carrier
+               Contact Carrier
             </motion.button>
             
             <motion.button
@@ -196,7 +196,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              ⚠️ Report Issue
+               Report Issue
             </motion.button>
             
             <motion.button
@@ -212,7 +212,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
                   Processing...
                 </>
               ) : (
-                '✅ Approve Recommended Action'
+                ' Approve Recommended Action'
               )}
             </motion.button>
             
@@ -222,7 +222,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              🗺️ View Alternative Routes
+               View Alternative Routes
             </motion.button>
           </div>
         </div>
@@ -235,7 +235,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <h4>🛣️ Alternative Route Options</h4>
+              <h4> Alternative Route Options</h4>
               <div className="routes-list">
                 {alternativeRoutes.map(route => (
                   <div key={route.id} className="route-option">
@@ -262,7 +262,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
         </AnimatePresence>
 
         <div className="manifest-section">
-          <h4>📦 Shipment Manifest</h4>
+          <h4> Shipment Manifest</h4>
           <div className="manifest-table">
             <table>
               <thead>
@@ -282,7 +282,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
                     <td>{item.unit}</td>
                     <td>{item.corporateDonor}</td>
                     <td>
-                      <span className="manifest-status loaded">✅ Loaded</span>
+                      <span className="manifest-status loaded"> Loaded</span>
                     </td>
                   </tr>
                 ))}
@@ -292,7 +292,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
         </div>
 
         <div className="timeline-section">
-          <h4>📋 Real-Time Event Log</h4>
+          <h4> Real-Time Event Log</h4>
           <div className="timeline-container">
             <AnimatePresence>
               {timeline.map((event, index) => (
@@ -309,7 +309,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
                   <div className="timeline-content">
                     <div className="event-text">{event.event}</div>
                     {event.location && (
-                      <div className="event-location">📍 {event.location}</div>
+                      <div className="event-location"> {event.location}</div>
                     )}
                   </div>
                   {index === 0 && (
@@ -339,19 +339,19 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
-              <h3>📞 Contact Carrier</h3>
+              <h3> Contact Carrier</h3>
               <div className="contact-options">
                 <button className="contact-option">
-                  📧 Send Email to {shipment.logisticsPartner}
+                   Send Email to {shipment.logisticsPartner}
                 </button>
                 <button className="contact-option">
-                  📱 Call Driver: +1 (555) 123-4567
+                   Call Driver: +1 (555) 123-4567
                 </button>
                 <button className="contact-option">
-                  💬 SMS Update Request
+                   SMS Update Request
                 </button>
                 <button className="contact-option">
-                  🎤 Voice Message
+                   Voice Message
                 </button>
               </div>
               <button onClick={() => setShowContactModal(false)} className="close-modal">
@@ -379,7 +379,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
-              <h3>⚠️ Report Issue</h3>
+              <h3> Report Issue</h3>
               <div className="issue-form">
                 <div className="form-group">
                   <label>Issue Type:</label>
