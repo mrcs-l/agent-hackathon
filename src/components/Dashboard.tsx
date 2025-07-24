@@ -365,7 +365,7 @@ const Dashboard: React.FC = () => {
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>Triageforce Command</h1>
+          <h1>Triageforce <strong>Command</strong></h1>
           <div className="live-impact-metrics">
             <div className="metric-item">
               <motion.div 
