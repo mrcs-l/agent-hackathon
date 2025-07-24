@@ -1,28 +1,29 @@
 @font-face {
-  font-family: 'Alliance No2';
-  src: local('Alliance No2'), url('./fonts/Alliance No.2 Regular.otf') format('opentype');
+  font-family: "Alliance No2";
+  src: local("Alliance No2"),
+    url("./fonts/Alliance No.2 Regular.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Armstrong';
-  src: url('./fonts/Armstrong.otf') format('opentype');
+  font-family: "Armstrong";
+  src: url("./fonts/Armstrong.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Armstrong';
-  src: url('./fonts/Armstrong-Extrabold.otf') format('opentype');
+  font-family: "Armstrong";
+  src: url("./fonts/Armstrong-Extrabold.otf") format("opentype");
   font-weight: 800;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Armstrong';
-  src: url('./fonts/Armstrong Oblique.otf') format('opentype');
+  font-family: "Armstrong";
+  src: url("./fonts/Armstrong Oblique.otf") format("opentype");
   font-weight: normal;
   font-style: italic;
 }
@@ -34,7 +35,9 @@
 }
 
 body {
-  font-family: 'Alliance No2', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: "Alliance No2", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #0f172a;
@@ -67,7 +70,7 @@ body {
 }
 
 .header-content h1 .command-text {
-  font-family: 'Armstrong';
+  font-family: "Armstrong";
   font-weight: normal;
   font-size: 1.3rem;
 }
@@ -97,8 +100,13 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .dashboard-content {
@@ -268,14 +276,28 @@ body {
   border-radius: 50%;
 }
 
-.severity-indicator.critical { background-color: #dc2626; }
-.severity-indicator.high { background-color: #ea580c; }
-.severity-indicator.medium { background-color: #d97706; }
-.severity-indicator.low { background-color: #65a30d; }
+.severity-indicator.critical {
+  background-color: #dc2626;
+}
+.severity-indicator.high {
+  background-color: #ea580c;
+}
+.severity-indicator.medium {
+  background-color: #d97706;
+}
+.severity-indicator.low {
+  background-color: #65a30d;
+}
 
-.status-indicator.ample { background-color: #16a34a; }
-.status-indicator.moderate { background-color: #eab308; }
-.status-indicator.low { background-color: #ea580c; }
+.status-indicator.ample {
+  background-color: #16a34a;
+}
+.status-indicator.moderate {
+  background-color: #eab308;
+}
+.status-indicator.low {
+  background-color: #ea580c;
+}
 
 .quick-actions h4 {
   font-size: 1rem;
@@ -377,15 +399,17 @@ body {
   border-radius: 50%;
   position: relative;
   animation: disaster-pulse 2s infinite;
-  box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+  box-shadow: 0 0 10px currentColor, 0 0 20px currentColor,
+    0 0 30px currentColor;
 }
 
 @keyframes disaster-pulse {
-  0%, 100% { 
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.8;
   }
-  50% { 
+  50% {
     transform: scale(1.3);
     opacity: 1;
   }
@@ -407,10 +431,11 @@ body {
 }
 
 @keyframes center-glow {
-  0%, 100% { 
+  0%,
+  100% {
     box-shadow: 0 0 8px #16a34a, 0 0 16px #16a34a;
   }
-  50% { 
+  50% {
     box-shadow: 0 0 12px #16a34a, 0 0 24px #16a34a, 0 0 36px #16a34a;
   }
 }
@@ -425,8 +450,15 @@ body {
 }
 
 @keyframes disaster-pulse {
-  0%, 100% { r: 20; opacity: 0.3; }
-  50% { r: 25; opacity: 0.1; }
+  0%,
+  100% {
+    r: 20;
+    opacity: 0.3;
+  }
+  50% {
+    r: 25;
+    opacity: 0.1;
+  }
 }
 
 .shipment-line {
@@ -531,20 +563,44 @@ body {
   color: #e2e8f0;
 }
 
-.severity-critical { color: #dc2626 !important; }
-.severity-high { color: #ea580c !important; }
-.severity-medium { color: #d97706 !important; }
-.severity-low { color: #65a30d !important; }
+.severity-critical {
+  color: #dc2626 !important;
+}
+.severity-high {
+  color: #ea580c !important;
+}
+.severity-medium {
+  color: #d97706 !important;
+}
+.severity-low {
+  color: #65a30d !important;
+}
 
-.status-ample { color: #16a34a !important; }
-.status-moderate { color: #eab308 !important; }
-.status-low { color: #ea580c !important; }
-.status-critical { color: #dc2626 !important; }
+.status-ample {
+  color: #16a34a !important;
+}
+.status-moderate {
+  color: #eab308 !important;
+}
+.status-low {
+  color: #ea580c !important;
+}
+.status-critical {
+  color: #dc2626 !important;
+}
 
-.status-in_transit { color: #3b82f6 !important; }
-.status-delayed { color: #eab308 !important; }
-.status-delivered { color: #16a34a !important; }
-.status-exception { color: #dc2626 !important; }
+.status-in_transit {
+  color: #3b82f6 !important;
+}
+.status-delayed {
+  color: #eab308 !important;
+}
+.status-delivered {
+  color: #16a34a !important;
+}
+.status-exception {
+  color: #dc2626 !important;
+}
 
 .needs-table h4 {
   font-size: 1.125rem;
@@ -845,14 +901,14 @@ body {
   .dashboard-content {
     flex-direction: column;
   }
-  
+
   .sidebar,
   .alerts-panel {
     position: relative;
     width: 100% !important;
     height: auto;
   }
-  
+
   .summary-stats {
     grid-template-columns: 1fr;
   }
@@ -864,8 +920,12 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Route Detail Styles */
@@ -1843,7 +1903,7 @@ body {
   font-size: 0.75rem;
   font-weight: 600;
   color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .matching-section {
@@ -1906,7 +1966,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .matching-progress {
@@ -2104,7 +2166,15 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  background: linear-gradient(45deg, #1e293b 25%, #0f172a 25%, #0f172a 50%, #1e293b 50%, #1e293b 75%, #0f172a 75%);
+  background: linear-gradient(
+    45deg,
+    #1e293b 25%,
+    #0f172a 25%,
+    #0f172a 50%,
+    #1e293b 50%,
+    #1e293b 75%,
+    #0f172a 75%
+  );
   background-size: 20px 20px;
 }
 
@@ -2494,11 +2564,12 @@ body {
 }
 
 @keyframes shipment-pulse {
-  0%, 100% { 
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.8;
   }
-  50% { 
+  50% {
     transform: scale(1.2);
     opacity: 1;
   }
@@ -2512,4 +2583,337 @@ body {
 /* Sidebar active disasters count */
 .stat-number.disasters-count {
   color: #ef4444; /* Bright red */
+}
+
+/* Enhanced Shipment Status Styling */
+.shipment-status-loading {
+  color: #ea580c !important;
+  background: rgba(234, 88, 12, 0.1);
+  border: 1px solid #ea580c;
+}
+
+.shipment-status-in_transit {
+  color: #16a34a !important;
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid #16a34a;
+}
+
+.shipment-status-delayed {
+  color: #eab308 !important;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid #eab308;
+}
+
+.shipment-status-delivered {
+  color: #059669 !important;
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid #059669;
+}
+
+.shipment-status-exception {
+  color: #dc2626 !important;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid #dc2626;
+}
+
+/* Enhanced Map Entity Hover Effects */
+.cesium-viewer .cesium-widget {
+  cursor: default;
+}
+
+.cesium-viewer .cesium-widget:hover {
+  cursor: pointer;
+}
+
+/* Animated Shipment Markers */
+@keyframes shipment-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+.shipment-marker-active {
+  animation: shipment-pulse 3s infinite;
+}
+
+/* Enhanced Status Badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-badge.status-loading {
+  color: #ea580c;
+  background: rgba(234, 88, 12, 0.1);
+  border: 1px solid #ea580c;
+}
+
+.status-badge.status-in_transit {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid #16a34a;
+}
+
+.status-badge.status-delayed {
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid #eab308;
+}
+
+.status-badge.status-delivered {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid #059669;
+}
+
+.status-badge.status-exception {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid #dc2626;
+}
+
+/* Interactive Map Elements */
+.map-entity-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  pointer-events: none;
+  z-index: 1000;
+  max-width: 200px;
+}
+
+/* Enhanced Route Detail View */
+.route-detail {
+  padding: 2rem;
+  background: #1e293b;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.route-summary {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.route-summary h3 {
+  color: #e2e8f0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.coordinates-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.coordinate-section {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.coordinate-section h5 {
+  color: #3b82f6;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+}
+
+.coordinate-details p {
+  color: #e2e8f0;
+  font-size: 0.875rem;
+  margin: 0.25rem 0;
+}
+
+.coordinate-details strong {
+  color: #10b981;
+}
+
+.route-status {
+  margin: 2rem 0;
+}
+
+.route-status h4 {
+  color: #e2e8f0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.status-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+}
+
+.status-indicator.confirmed {
+  border-color: #16a34a;
+  background: rgba(22, 163, 74, 0.05);
+}
+
+.status-indicator.pending {
+  border-color: #eab308;
+  background: rgba(234, 179, 8, 0.05);
+}
+
+.status-indicator.priority-critical {
+  border-color: #dc2626;
+  background: rgba(220, 38, 38, 0.05);
+}
+
+.status-indicator.priority-high {
+  border-color: #ea580c;
+  background: rgba(234, 88, 12, 0.05);
+}
+
+.status-indicator.priority-medium {
+  border-color: #d97706;
+  background: rgba(217, 119, 6, 0.05);
+}
+
+.status-indicator.priority-low {
+  border-color: #65a30d;
+  background: rgba(101, 163, 13, 0.05);
+}
+
+.status-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: bold;
+  background: currentColor;
+  color: white;
+  flex-shrink: 0;
+}
+
+.status-info h5 {
+  color: #e2e8f0;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.status-info p {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.route-resources {
+  margin: 2rem 0;
+}
+
+.route-resources h4 {
+  color: #e2e8f0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.route-timeline {
+  margin: 2rem 0;
+}
+
+.route-timeline h4 {
+  color: #e2e8f0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.timeline-events {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Enhanced Interactive Feedback */
+.clickable-entity {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clickable-entity:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+/* Enhanced Cesium Widget Styling */
+.cesium-viewer-cesiumWidgetContainer .cesium-widget-credits {
+  display: none !important;
+}
+
+.cesium-viewer .cesium-toolbar-button img {
+  filter: invert(1);
+}
+
+.cesium-viewer .cesium-baseLayerPicker-dropDown {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+/* Loading States for Real-time Updates */
+@keyframes entity-update {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.entity-updating {
+  animation: entity-update 0.5s ease-in-out;
 }
