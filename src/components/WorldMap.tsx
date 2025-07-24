@@ -26,7 +26,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical': return '#dc2626';
-      case 'high': return '#ea580c';
+      case 'high': return '#991b1b';
       case 'medium': return '#d97706';
       case 'low': return '#65a30d';
       default: return '#6b7280';
@@ -110,49 +110,66 @@ const WorldMap: React.FC<WorldMapProps> = ({
     });
     markersRef.current = {};
 
-    // Removed all marker creation code
-    // disasters.forEach((disaster) => {
-    //   const marker = L.circleMarker([disaster.location.lat, disaster.location.lng], {
-    //     radius: 15,
-    //     fillColor: getSeverityColor(disaster.severity),
-    //     color: getSeverityColor(disaster.severity),
-    //     weight: 2,
-    //     opacity: 1,
-    //     fillOpacity: 0.8
-    //   })
-    //     .bindPopup(`
-    //       <div>
-    //         <h3>${disaster.name}</h3>
-    //         <p><strong>Type:</strong> ${disaster.type}</p>
-    //         <p><strong>Severity:</strong> ${disaster.severity}</p>
-    //         <p><strong>Location:</strong> ${disaster.location.name}</p>
-    //       </div>
-    //     `)
-    //     .on('click', () => onDisasterClick(disaster));
+    // Create disaster markers as glowing, pulsating dots
+    disasters.forEach((disaster) => {
+      const severityColor = getSeverityColor(disaster.severity);
+      
+      // Create custom icon for disaster
+      const disasterIcon = L.divIcon({
+        className: 'disaster-marker',
+        html: `<div class="disaster-dot" style="background-color: ${severityColor};"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
 
-    //   if (leafletMapRef.current) {
-    //     marker.addTo(leafletMapRef.current);
-    //     markersRef.current[`disaster-${disaster.id}`] = marker;
-    //   }
-    // });
+      const marker = L.marker([disaster.location.lat, disaster.location.lng], {
+        icon: disasterIcon
+      })
+        .bindPopup(`
+          <div>
+            <h3>${disaster.name}</h3>
+            <p><strong>Type:</strong> ${disaster.type}</p>
+            <p><strong>Severity:</strong> ${disaster.severity}</p>
+            <p><strong>Location:</strong> ${disaster.location.name}</p>
+          </div>
+        `)
+        .on('click', () => onDisasterClick(disaster));
 
-    // operationalCenters.forEach((center) => {
-    //   const marker = L.marker([center.location.lat, center.location.lng])
-    //     .bindPopup(`
-    //       <div>
-    //         <h3>${center.name}</h3>
-    //         <p><strong>Inventory Status:</strong> ${center.inventoryStatus}</p>
-    //         <p><strong>Location:</strong> ${center.location.name}</p>
-    //       </div>
-    //     `)
-    //     .on('click', () => onCenterClick(center));
+      if (leafletMapRef.current) {
+        marker.addTo(leafletMapRef.current);
+        markersRef.current[`disaster-${disaster.id}`] = marker;
+      }
+    });
 
-    //   if (leafletMapRef.current) {
-    //     marker.addTo(leafletMapRef.current);
-    //     markersRef.current[`center-${center.id}`] = marker;
-    //   }
-    // });
+    // Create operational center markers as green squares
+    operationalCenters.forEach((center) => {
+      // Create custom icon for operational center
+      const centerIcon = L.divIcon({
+        className: 'center-marker',
+        html: `<div class="center-square"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
 
+      const marker = L.marker([center.location.lat, center.location.lng], {
+        icon: centerIcon
+      })
+        .bindPopup(`
+          <div>
+            <h3>${center.name}</h3>
+            <p><strong>Inventory Status:</strong> ${center.inventoryStatus}</p>
+            <p><strong>Location:</strong> ${center.location.name}</p>
+          </div>
+        `)
+        .on('click', () => onCenterClick(center));
+
+      if (leafletMapRef.current) {
+        marker.addTo(leafletMapRef.current);
+        markersRef.current[`center-${center.id}`] = marker;
+      }
+    });
+
+    // Removed shipment polylines for now
     // shipments.forEach((shipment) => {
     //   const origin = operationalCenters.find(oc => oc.name === shipment.origin);
     //   const disaster = disasters.find(d => d.location.name === shipment.destination);
