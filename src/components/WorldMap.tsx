@@ -85,9 +85,10 @@ const WorldMap: React.FC<WorldMapProps> = ({
       maxZoom: 19
     }).addTo(map);
 
-    const exampleMarker = L.marker([51.5, -0.09]).addTo(map)
-      .bindPopup('A pretty CSS popup.<br> Easily customizable.')
-      .openPopup();
+    // Removed example marker
+    // const exampleMarker = L.marker([51.5, -0.09]).addTo(map)
+    //   .bindPopup('A pretty CSS popup.<br> Easily customizable.')
+    //   .openPopup();
 
     leafletMapRef.current = map;
 
@@ -109,79 +110,80 @@ const WorldMap: React.FC<WorldMapProps> = ({
     });
     markersRef.current = {};
 
-    disasters.forEach((disaster) => {
-      const marker = L.circleMarker([disaster.location.lat, disaster.location.lng], {
-        radius: 15,
-        fillColor: getSeverityColor(disaster.severity),
-        color: getSeverityColor(disaster.severity),
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0.8
-      })
-        .bindPopup(`
-          <div>
-            <h3>${disaster.name}</h3>
-            <p><strong>Type:</strong> ${disaster.type}</p>
-            <p><strong>Severity:</strong> ${disaster.severity}</p>
-            <p><strong>Location:</strong> ${disaster.location.name}</p>
-          </div>
-        `)
-        .on('click', () => onDisasterClick(disaster));
+    // Removed all marker creation code
+    // disasters.forEach((disaster) => {
+    //   const marker = L.circleMarker([disaster.location.lat, disaster.location.lng], {
+    //     radius: 15,
+    //     fillColor: getSeverityColor(disaster.severity),
+    //     color: getSeverityColor(disaster.severity),
+    //     weight: 2,
+    //     opacity: 1,
+    //     fillOpacity: 0.8
+    //   })
+    //     .bindPopup(`
+    //       <div>
+    //         <h3>${disaster.name}</h3>
+    //         <p><strong>Type:</strong> ${disaster.type}</p>
+    //         <p><strong>Severity:</strong> ${disaster.severity}</p>
+    //         <p><strong>Location:</strong> ${disaster.location.name}</p>
+    //       </div>
+    //     `)
+    //     .on('click', () => onDisasterClick(disaster));
 
-      if (leafletMapRef.current) {
-        marker.addTo(leafletMapRef.current);
-        markersRef.current[`disaster-${disaster.id}`] = marker;
-      }
-    });
+    //   if (leafletMapRef.current) {
+    //     marker.addTo(leafletMapRef.current);
+    //     markersRef.current[`disaster-${disaster.id}`] = marker;
+    //   }
+    // });
 
-    operationalCenters.forEach((center) => {
-      const marker = L.marker([center.location.lat, center.location.lng])
-        .bindPopup(`
-          <div>
-            <h3>${center.name}</h3>
-            <p><strong>Inventory Status:</strong> ${center.inventoryStatus}</p>
-            <p><strong>Location:</strong> ${center.location.name}</p>
-          </div>
-        `)
-        .on('click', () => onCenterClick(center));
+    // operationalCenters.forEach((center) => {
+    //   const marker = L.marker([center.location.lat, center.location.lng])
+    //     .bindPopup(`
+    //       <div>
+    //         <h3>${center.name}</h3>
+    //         <p><strong>Inventory Status:</strong> ${center.inventoryStatus}</p>
+    //         <p><strong>Location:</strong> ${center.location.name}</p>
+    //       </div>
+    //     `)
+    //     .on('click', () => onCenterClick(center));
 
-      if (leafletMapRef.current) {
-        marker.addTo(leafletMapRef.current);
-        markersRef.current[`center-${center.id}`] = marker;
-      }
-    });
+    //   if (leafletMapRef.current) {
+    //     marker.addTo(leafletMapRef.current);
+    //     markersRef.current[`center-${center.id}`] = marker;
+    //   }
+    // });
 
-    shipments.forEach((shipment) => {
-      const origin = operationalCenters.find(oc => oc.name === shipment.origin);
-      const disaster = disasters.find(d => d.location.name === shipment.destination);
+    // shipments.forEach((shipment) => {
+    //   const origin = operationalCenters.find(oc => oc.name === shipment.origin);
+    //   const disaster = disasters.find(d => d.location.name === shipment.destination);
       
-      if (origin && disaster && leafletMapRef.current) {
-        const polyline = L.polyline(
-          [
-            [origin.location.lat, origin.location.lng],
-            [disaster.location.lat, disaster.location.lng]
-          ],
-          {
-            color: getShipmentStatusColor(shipment.status),
-            weight: 4,
-            opacity: 0.8,
-            dashArray: shipment.status === 'delayed' ? '10, 10' : undefined
-          }
-        )
-          .bindPopup(`
-            <div>
-              <h3>Shipment ${shipment.id}</h3>
-              <p><strong>Status:</strong> ${shipment.status}</p>
-              <p><strong>From:</strong> ${shipment.origin}</p>
-              <p><strong>To:</strong> ${shipment.destination}</p>
-            </div>
-          `)
-          .on('click', () => onShipmentClick(shipment));
+    //   if (origin && disaster && leafletMapRef.current) {
+    //     const polyline = L.polyline(
+    //       [
+    //         [origin.location.lat, origin.location.lng],
+    //         [disaster.location.lat, disaster.location.lng]
+    //       ],
+    //       {
+    //         color: getShipmentStatusColor(shipment.status),
+    //         weight: 4,
+    //         opacity: 0.8,
+    //         dashArray: shipment.status === 'delayed' ? '10, 10' : undefined
+    //       }
+    //     )
+    //       .bindPopup(`
+    //         <div>
+    //           <h3>Shipment ${shipment.id}</h3>
+    //           <p><strong>Status:</strong> ${shipment.status}</p>
+    //           <p><strong>From:</strong> ${shipment.origin}</p>
+    //           <p><strong>To:</strong> ${shipment.destination}</p>
+    //         </div>
+    //       `)
+    //       .on('click', () => onShipmentClick(shipment));
 
-        polyline.addTo(leafletMapRef.current);
-        markersRef.current[`shipment-${shipment.id}`] = polyline as any;
-      }
-    });
+    //     polyline.addTo(leafletMapRef.current);
+    //     markersRef.current[`shipment-${shipment.id}`] = polyline as any;
+    //   }
+    // });
   }, [disasters, operationalCenters, shipments, onDisasterClick, onCenterClick, onShipmentClick]);
 
   return (
