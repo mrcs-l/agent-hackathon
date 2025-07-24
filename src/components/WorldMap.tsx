@@ -27,6 +27,39 @@ const WorldMap: React.FC<WorldMapProps> = ({
 }) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
+  // Function to create realistic great circle flight paths
+  const createGreatCircleRoute = (origin: { lat: number, lng: number }, destination: { lat: number, lng: number }): [number, number][] => {
+    const lat1 = origin.lat * Math.PI / 180; // Convert to radians
+    const lng1 = origin.lng * Math.PI / 180;
+    const lat2 = destination.lat * Math.PI / 180;
+    const lng2 = destination.lng * Math.PI / 180;
+    
+    const d = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin((lat2 - lat1) / 2), 2) + 
+                                    Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lng2 - lng1) / 2), 2)));
+    
+    // Create multiple points along the great circle
+    const points: [number, number][] = [];
+    const numPoints = Math.max(20, Math.floor(d * 180 / Math.PI)); // More points for longer distances
+    
+    for (let i = 0; i <= numPoints; i++) {
+      const fraction = i / numPoints;
+      
+      const A = Math.sin((1 - fraction) * d) / Math.sin(d);
+      const B = Math.sin(fraction * d) / Math.sin(d);
+      
+      const x = A * Math.cos(lat1) * Math.cos(lng1) + B * Math.cos(lat2) * Math.cos(lng2);
+      const y = A * Math.cos(lat1) * Math.sin(lng1) + B * Math.cos(lat2) * Math.sin(lng2);
+      const z = A * Math.sin(lat1) + B * Math.sin(lat2);
+      
+      const lat = Math.atan2(z, Math.sqrt(x * x + y * y)) * 180 / Math.PI;
+      const lng = Math.atan2(y, x) * 180 / Math.PI;
+      
+      points.push([lat, lng]);
+    }
+    
+    return points;
+  };
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical': return '#dc2626';
@@ -173,14 +206,13 @@ const WorldMap: React.FC<WorldMapProps> = ({
       }
     });
 
-    // Render blue routes with dotted/solid lines based on confirmation status
+    // Render blue routes with realistic great circle flight paths
     routes.forEach((route) => {
       if (leafletMapRef.current) {
+        const routePath = createGreatCircleRoute(route.origin, route.destination);
+        
         const polyline = L.polyline(
-          [
-            [route.origin.lat, route.origin.lng],
-            [route.destination.lat, route.destination.lng]
-          ],
+          routePath as L.LatLngExpression[],
           {
             color: '#3b82f6', // Blue color
             weight: 1,
