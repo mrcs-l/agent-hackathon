@@ -3,16 +3,17 @@ import { motion } from 'framer-motion';
 import WorldMap from './WorldMap';
 import Sidebar from './Sidebar';
 import AlertsPanel from './AlertsPanel';
-import { Disaster, OperationalCenter, Shipment } from '../types';
-import { mockDisasters, mockOperationalCenters, mockShipments, mockAlerts } from '../data/mockData';
+import { Disaster, OperationalCenter, Shipment, Route } from '../types';
+import { mockDisasters, mockOperationalCenters, mockShipments, mockAlerts, mockRoutes } from '../data/mockData';
 
-type ViewMode = 'dashboard' | 'disaster-detail' | 'center-detail' | 'shipment-detail';
+type ViewMode = 'dashboard' | 'disaster-detail' | 'center-detail' | 'shipment-detail' | 'route-detail';
 
 const Dashboard: React.FC = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
   const [selectedDisaster, setSelectedDisaster] = useState<Disaster | null>(null);
   const [selectedCenter, setSelectedCenter] = useState<OperationalCenter | null>(null);
   const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
+  const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [alertsPanelCollapsed, setAlertsPanelCollapsed] = useState(false);
 
@@ -31,11 +32,17 @@ const Dashboard: React.FC = () => {
     setViewMode('shipment-detail');
   };
 
+  const handleRouteClick = (route: Route) => {
+    setSelectedRoute(route);
+    setViewMode('route-detail');
+  };
+
   const handleBackToDashboard = () => {
     setViewMode('dashboard');
     setSelectedDisaster(null);
     setSelectedCenter(null);
     setSelectedShipment(null);
+    setSelectedRoute(null);
   };
 
   return (
@@ -83,9 +90,11 @@ const Dashboard: React.FC = () => {
                 disasters={mockDisasters}
                 operationalCenters={mockOperationalCenters}
                 shipments={mockShipments}
+                routes={mockRoutes}
                 onDisasterClick={handleDisasterClick}
                 onCenterClick={handleCenterClick}
                 onShipmentClick={handleShipmentClick}
+                onRouteClick={handleRouteClick}
               />
             </motion.div>
           )}
@@ -249,6 +258,74 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {viewMode === 'route-detail' && selectedRoute && (
+            <motion.div
+              className="detail-view"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="detail-header">
+                <button onClick={handleBackToDashboard} className="back-button">
+                  ← Back to Dashboard
+                </button>
+                <h2>Route Details</h2>
+              </div>
+              <div className="route-detail">
+                <div className="route-summary">
+                  <h3>Route {selectedRoute.id}</h3>
+                  <div className="summary-stats">
+                    <div className="stat">
+                      <span className="label">From:</span>
+                      <span className="value">{selectedRoute.origin.name}</span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">To:</span>
+                      <span className="value">{selectedRoute.destination.name}</span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Status:</span>
+                      <span className={`value status-${selectedRoute.confirmed ? 'confirmed' : 'pending'}`}>
+                        {selectedRoute.confirmed ? 'CONFIRMED' : 'PENDING'}
+                      </span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Duration:</span>
+                      <span className="value">{selectedRoute.estimatedDuration}</span>
+                    </div>
+                    <div className="stat">
+                      <span className="label">Priority:</span>
+                      <span className={`value priority-${selectedRoute.priority}`}>
+                        {selectedRoute.priority.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="resources-table">
+                  <h4>Resources Being Transported</h4>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Resource Type</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedRoute.resources.map((resource, index) => (
+                        <tr key={index}>
+                          <td>{resource.type}</td>
+                          <td>{resource.quantity.toLocaleString()}</td>
+                          <td>{resource.unit}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </motion.div>

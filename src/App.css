@@ -797,3 +797,102 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Route Detail Styles */
+.route-detail {
+  padding: 1.5rem;
+}
+
+.route-summary {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.route-summary h3 {
+  color: #3b82f6;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.resources-table {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.resources-table h4 {
+  color: #e2e8f0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Enhanced Status Styles */
+.status-confirmed {
+  color: #10b981 !important;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #f59e0b !important;
+  font-weight: 600;
+}
+
+/* Enhanced Priority Styles */
+.priority-critical {
+  color: #ef4444 !important;
+  font-weight: 600;
+}
+
+.priority-high {
+  color: #f97316 !important;
+  font-weight: 600;
+}
+
+.priority-medium {
+  color: #eab308 !important;
+  font-weight: 600;
+}
+
+.priority-low {
+  color: #22c55e !important;
+  font-weight: 600;
+}
+
+/* Leaflet Polyline Hover Effects */
+.leaflet-interactive:hover {
+  filter: brightness(1.2);
+}
+
+/* Custom Route Popup Styles */
+.leaflet-popup-content {
+  font-family: inherit !important;
+}
+
+.leaflet-popup-content h3 {
+  color: #1f2937 !important;
+  margin: 0 0 8px 0 !important;
+  font-size: 1.1rem !important;
+}
+
+.leaflet-popup-content p {
+  margin: 4px 0 !important;
+  color: #374151 !important;
+}
+
+.leaflet-popup-content strong {
+  color: #111827 !important;
+}
+
+.leaflet-popup-content ul {
+  margin: 4px 0 !important;
+  padding-left: 16px !important;
+}
+
+.leaflet-popup-content li {
+  color: #374151 !important;
+  margin: 2px 0 !important;
+}

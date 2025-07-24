@@ -87,3 +87,25 @@ export interface Alert {
   relatedId?: string;
   relatedType?: 'disaster' | 'shipment' | 'inventory';
 }
+
+export interface Route {
+  id: string;
+  origin: {
+    lat: number;
+    lng: number;
+    name: string;
+  };
+  destination: {
+    lat: number;
+    lng: number;
+    name: string;
+  };
+  confirmed: boolean;
+  resources: {
+    type: string;
+    quantity: number;
+    unit: string;
+  }[];
+  estimatedDuration: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+}

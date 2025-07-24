@@ -1,4 +1,4 @@
-import { Disaster, OperationalCenter, Shipment, Alert } from '../types';
+import { Disaster, OperationalCenter, Shipment, Alert, Route } from '../types';
 
 export const mockDisasters: Disaster[] = [
   {
@@ -247,5 +247,89 @@ export const mockAlerts: Alert[] = [
     type: 'info',
     message: 'Agentforce System Health: All systems operational.',
     timestamp: '2024-07-24T07:30:00Z'
+  }
+];
+
+export const mockRoutes: Route[] = [
+  {
+    id: 'route-1',
+    origin: {
+      lat: 32.7767,
+      lng: -96.7970,
+      name: 'Dallas Distribution Center'
+    },
+    destination: {
+      lat: 25.7617,
+      lng: -80.1918,
+      name: 'Miami, Florida'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'Bottled Water', quantity: 50000, unit: 'bottles' },
+      { type: 'Food Rations', quantity: 25000, unit: 'packages' },
+      { type: 'Medical Supplies', quantity: 1000, unit: 'kits' }
+    ],
+    estimatedDuration: '18 hours',
+    priority: 'critical'
+  },
+  {
+    id: 'route-2',
+    origin: {
+      lat: 33.7490,
+      lng: -84.3880,
+      name: 'Atlanta Hub'
+    },
+    destination: {
+      lat: 37.7749,
+      lng: -122.4194,
+      name: 'San Francisco, California'
+    },
+    confirmed: false,
+    resources: [
+      { type: 'Emergency Tents', quantity: 2000, unit: 'tents' },
+      { type: 'Blankets', quantity: 5000, unit: 'blankets' }
+    ],
+    estimatedDuration: '36 hours',
+    priority: 'high'
+  },
+  {
+    id: 'route-3',
+    origin: {
+      lat: 47.6062,
+      lng: -122.3321,
+      name: 'Seattle Warehouse'
+    },
+    destination: {
+      lat: 41.8781,
+      lng: -87.6298,
+      name: 'Chicago, Illinois'
+    },
+    confirmed: true,
+    resources: [
+      { type: 'First Aid Kits', quantity: 10000, unit: 'kits' },
+      { type: 'Water Purification Tablets', quantity: 50000, unit: 'tablets' }
+    ],
+    estimatedDuration: '28 hours',
+    priority: 'medium'
+  },
+  {
+    id: 'route-4',
+    origin: {
+      lat: 33.7490,
+      lng: -84.3880,
+      name: 'Atlanta Hub'
+    },
+    destination: {
+      lat: 25.7617,
+      lng: -80.1918,
+      name: 'Miami, Florida'
+    },
+    confirmed: false,
+    resources: [
+      { type: 'Generators', quantity: 100, unit: 'units' },
+      { type: 'Fuel', quantity: 5000, unit: 'gallons' }
+    ],
+    estimatedDuration: '12 hours',
+    priority: 'high'
   }
 ];

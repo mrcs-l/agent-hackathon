@@ -2,24 +2,28 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Disaster, OperationalCenter, Shipment } from '../types';
+import { Disaster, OperationalCenter, Shipment, Route } from '../types';
 
 interface WorldMapProps {
   disasters: Disaster[];
   operationalCenters: OperationalCenter[];
   shipments: Shipment[];
+  routes: Route[];
   onDisasterClick: (disaster: Disaster) => void;
   onCenterClick: (center: OperationalCenter) => void;
   onShipmentClick: (shipment: Shipment) => void;
+  onRouteClick: (route: Route) => void;
 }
 
 const WorldMap: React.FC<WorldMapProps> = ({
   disasters,
   operationalCenters,
   shipments,
+  routes,
   onDisasterClick,
   onCenterClick,
-  onShipmentClick
+  onShipmentClick,
+  onRouteClick
 }) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
@@ -169,39 +173,46 @@ const WorldMap: React.FC<WorldMapProps> = ({
       }
     });
 
-    // Removed shipment polylines for now
-    // shipments.forEach((shipment) => {
-    //   const origin = operationalCenters.find(oc => oc.name === shipment.origin);
-    //   const disaster = disasters.find(d => d.location.name === shipment.destination);
-      
-    //   if (origin && disaster && leafletMapRef.current) {
-    //     const polyline = L.polyline(
-    //       [
-    //         [origin.location.lat, origin.location.lng],
-    //         [disaster.location.lat, disaster.location.lng]
-    //       ],
-    //       {
-    //         color: getShipmentStatusColor(shipment.status),
-    //         weight: 4,
-    //         opacity: 0.8,
-    //         dashArray: shipment.status === 'delayed' ? '10, 10' : undefined
-    //       }
-    //     )
-    //       .bindPopup(`
-    //         <div>
-    //           <h3>Shipment ${shipment.id}</h3>
-    //           <p><strong>Status:</strong> ${shipment.status}</p>
-    //           <p><strong>From:</strong> ${shipment.origin}</p>
-    //           <p><strong>To:</strong> ${shipment.destination}</p>
-    //         </div>
-    //       `)
-    //       .on('click', () => onShipmentClick(shipment));
+    // Render blue routes with dotted/solid lines based on confirmation status
+    routes.forEach((route) => {
+      if (leafletMapRef.current) {
+        const polyline = L.polyline(
+          [
+            [route.origin.lat, route.origin.lng],
+            [route.destination.lat, route.destination.lng]
+          ],
+          {
+            color: '#3b82f6', // Blue color
+            weight: 1,
+            opacity: 0.8,
+            dashArray: route.confirmed ? undefined : '10, 10' // Solid if confirmed, dotted if not
+          }
+        )
+          .bindPopup(`
+            <div style="min-width: 200px;">
+              <h3 style="margin: 0 0 8px 0; color: #1f2937;">Route ${route.id}</h3>
+              <p style="margin: 4px 0;"><strong>From:</strong> ${route.origin.name}</p>
+              <p style="margin: 4px 0;"><strong>To:</strong> ${route.destination.name}</p>
+              <p style="margin: 4px 0;"><strong>Status:</strong> ${route.confirmed ? 'Confirmed' : 'Pending'}</p>
+              <p style="margin: 4px 0;"><strong>Duration:</strong> ${route.estimatedDuration}</p>
+              <p style="margin: 4px 0;"><strong>Priority:</strong> ${route.priority}</p>
+              <div style="margin-top: 8px;">
+                <strong>Resources:</strong>
+                <ul style="margin: 4px 0; padding-left: 16px;">
+                  ${route.resources.map(resource => 
+                    `<li>${resource.quantity.toLocaleString()} ${resource.unit} of ${resource.type}</li>`
+                  ).join('')}
+                </ul>
+              </div>
+            </div>
+          `)
+          .on('click', () => onRouteClick(route));
 
-    //     polyline.addTo(leafletMapRef.current);
-    //     markersRef.current[`shipment-${shipment.id}`] = polyline as any;
-    //   }
-    // });
-  }, [disasters, operationalCenters, shipments, onDisasterClick, onCenterClick, onShipmentClick]);
+        polyline.addTo(leafletMapRef.current);
+        markersRef.current[`route-${route.id}`] = polyline as any;
+      }
+    });
+  }, [disasters, operationalCenters, shipments, routes, onDisasterClick, onCenterClick, onShipmentClick, onRouteClick]);
 
   return (
     <div className="world-map">
