@@ -154,8 +154,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       <motion.span 
         className={className}
         key={value} // Force re-render on value change
-        initial={{ scale: 1.1, color: value > displayValue ? '#00ff88' : '#333' }}
-        animate={{ scale: 1, color: '#333' }}
+        initial={{ scale: 1.1, color: '#fff' }}
+        animate={{ scale: 1, color: '#fff' }}
         transition={{ duration: 0.3 }}
       >
         {formatter(displayValue)}

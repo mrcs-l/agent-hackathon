@@ -2916,3 +2916,21 @@ body {
 .entity-updating {
   animation: entity-update 0.5s ease-in-out;
 }
+
+.stat-number {
+  color: #fff !important;
+}
+
+.metric-value {
+  color: #fff !important;
+}
+
+/* If there are other number classes, ensure they are white too */
+.stat .value {
+  color: #fff !important;
+}
+
+/* Optionally, make the impact metric numbers white */
+.live-impact-metrics .metric-value {
+  color: #fff !important;
+}
