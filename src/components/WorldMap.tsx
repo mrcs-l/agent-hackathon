@@ -79,8 +79,10 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
     const map = L.map(mapRef.current).setView([51.505, -0.09], 13);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmail.org/copyright">OpenStreetMap</a> contributors'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19
     }).addTo(map);
 
     const exampleMarker = L.marker([51.5, -0.09]).addTo(map)
@@ -184,7 +186,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
   return (
     <div className="world-map">
-      <div ref={mapRef} style={{ height: '500px', width: '100%' }} />
+      <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
     </div>
   );
 };
