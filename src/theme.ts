@@ -1,6 +1,9 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, Theme } from '@mui/material/styles';
 
-export const theme = createTheme({
+/**
+ * Application-wide MUI theme.
+ */
+export const theme: Theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
@@ -36,7 +39,7 @@ export const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Alliance No2", "Roboto", "Helvetica", "Arial", sans-serif',
     h4: {
       fontWeight: 600,
     },
