@@ -626,7 +626,8 @@ export const mockAlerts: Alert[] = [
     message: 'Disaster Severity Upgrade: Hurricane Delta now "Critical" in Florida.',
     timestamp: '2024-07-24T10:30:00Z',
     relatedId: '1',
-    relatedType: 'disaster'
+    relatedType: 'disaster',
+    status: 'active'
   },
   {
     id: '2',
@@ -634,7 +635,22 @@ export const mockAlerts: Alert[] = [
     message: 'Shipment ATB-789 to Miami Delayed by 12 hours - Road Closure.',
     timestamp: '2024-07-24T14:15:00Z',
     relatedId: 'ATB-789',
-    relatedType: 'shipment'
+    relatedType: 'shipment',
+    status: 'active',
+    recommendations: [
+      {
+        id: 'rec-1',
+        title: 'Alternative Route Recommendation',
+        description: 'Agentforce has identified an optimal alternative route via I-95 South that avoids the closure. This route adds minimal time but ensures on-schedule delivery.',
+        costImpact: '+$850',
+        timeImpact: '+2.5 hours',
+        actions: [
+          { id: 'act-1', label: 'Approve Route Change', type: 'approve', primary: true },
+          { id: 'act-2', label: 'View on Map', type: 'view_route' },
+          { id: 'act-3', label: 'Contact Driver', type: 'contact' }
+        ]
+      }
+    ]
   },
   {
     id: '3',
@@ -642,25 +658,66 @@ export const mockAlerts: Alert[] = [
     message: 'Inventory Low for Water Filters at Seattle Warehouse.',
     timestamp: '2024-07-24T11:00:00Z',
     relatedId: '3',
-    relatedType: 'inventory'
+    relatedType: 'inventory',
+    status: 'awaiting_resolution',
+    recommendations: [
+      {
+        id: 'rec-2',
+        title: 'Emergency Transfer from Portland Hub',
+        description: 'Transfer 15,000 water filters from Portland Hub (2 hours away) to meet projected demand. Alternative: Rush order from supplier with overnight delivery.',
+        costImpact: '+$2,400',
+        timeImpact: '4 hours',
+        actions: [
+          { id: 'act-4', label: 'Approve Transfer', type: 'approve', primary: true },
+          { id: 'act-5', label: 'Contact Portland Hub', type: 'contact' },
+          { id: 'act-6', label: 'Report Inventory Issue', type: 'report_issue' }
+        ]
+      }
+    ]
   },
   {
     id: '4',
-    type: 'info',
-    message: 'New Corporate Partner Onboarded: "Global Tech Inc."',
-    timestamp: '2024-07-24T09:00:00Z'
+    type: 'urgent',
+    message: 'Typhoon Genesis approaching Philippines - New disaster zone detected.',
+    timestamp: '2024-07-24T16:45:00Z',
+    relatedId: 'disaster-typhoon-1',
+    relatedType: 'disaster',
+    status: 'active',
+    recommendations: [
+      {
+        id: 'rec-3',
+        title: 'Pre-position Emergency Resources',
+        description: 'Agentforce recommends pre-positioning emergency supplies from Singapore and Tokyo hubs. Estimated 2.3M people in potential impact zone.',
+        costImpact: '+$45,000',
+        timeImpact: '12 hours prep time',
+        actions: [
+          { id: 'act-7', label: 'Approve Pre-positioning', type: 'approve', primary: true },
+          { id: 'act-8', label: 'View Deployment Routes', type: 'view_route' },
+          { id: 'act-9', label: 'Contact Regional Hubs', type: 'contact' }
+        ]
+      }
+    ]
   },
   {
     id: '5',
     type: 'info',
-    message: 'Weekly Impact Report Generated.',
-    timestamp: '2024-07-24T08:00:00Z'
+    message: 'New Corporate Partner Onboarded: "Global Tech Inc."',
+    timestamp: '2024-07-24T09:00:00Z',
+    status: 'resolved'
   },
   {
     id: '6',
     type: 'info',
+    message: 'Weekly Impact Report Generated.',
+    timestamp: '2024-07-24T08:00:00Z',
+    status: 'resolved'
+  },
+  {
+    id: '7',
+    type: 'info',
     message: 'Agentforce System Health: All systems operational.',
-    timestamp: '2024-07-24T07:30:00Z'
+    timestamp: '2024-07-24T07:30:00Z',
+    status: 'active'
   }
 ];
 

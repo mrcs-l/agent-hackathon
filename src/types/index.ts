@@ -86,6 +86,24 @@ export interface Alert {
   timestamp: string;
   relatedId?: string;
   relatedType?: 'disaster' | 'shipment' | 'inventory';
+  status?: 'active' | 'awaiting_resolution' | 'resolved';
+  recommendations?: AlertRecommendation[];
+}
+
+export interface AlertRecommendation {
+  id: string;
+  title: string;
+  description: string;
+  costImpact?: string;
+  timeImpact?: string;
+  actions: AlertAction[];
+}
+
+export interface AlertAction {
+  id: string;
+  label: string;
+  type: 'approve' | 'view_route' | 'contact' | 'report_issue';
+  primary?: boolean;
 }
 
 export interface Route {
@@ -108,4 +126,37 @@ export interface Route {
   }[];
   estimatedDuration: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
+  alternativeRoutes?: AlternativeRoute[];
+}
+
+export interface AlternativeRoute {
+  id: string;
+  description: string;
+  costImpact: string;
+  timeImpact: string;
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
+export interface RealTimeUpdate {
+  id: string;
+  type: 'disaster' | 'shipment' | 'inventory' | 'matching';
+  entityId: string;
+  update: any;
+  timestamp: string;
+}
+
+export interface ImpactMetrics {
+  peopleHelped: number;
+  wastePrevented: number;
+  costSaved: number;
+  disastersResponded: number;
+}
+
+export interface NotificationPopup {
+  id: string;
+  title: string;
+  message: string;
+  type: 'agentforce' | 'alert' | 'recommendation';
+  actions?: AlertAction[];
+  autoClose?: boolean;
 }

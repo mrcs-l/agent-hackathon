@@ -13,6 +13,8 @@ interface WorldMapProps {
   onCenterClick: (center: OperationalCenter) => void;
   onShipmentClick: (shipment: Shipment) => void;
   onRouteClick: (route: Route) => void;
+  onViewNeedsAssessment?: (disasterId: string) => void;
+  onViewActiveShipments?: (disasterId?: string) => void;
 }
 
 const WorldMap: React.FC<WorldMapProps> = ({
@@ -23,7 +25,9 @@ const WorldMap: React.FC<WorldMapProps> = ({
   onDisasterClick,
   onCenterClick,
   onShipmentClick,
-  onRouteClick
+  onRouteClick,
+  onViewNeedsAssessment,
+  onViewActiveShipments
 }) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
@@ -159,17 +163,77 @@ const WorldMap: React.FC<WorldMapProps> = ({
         iconAnchor: [10, 10]
       });
 
+      // Enhanced popup with action buttons
+      const popupContent = document.createElement('div');
+      popupContent.innerHTML = `
+        <div style="min-width: 280px; font-family: system-ui, -apple-system, sans-serif;">
+          <div style="margin-bottom: 12px;">
+            <h3 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px; font-weight: 600;">
+              ${getDisasterIcon(disaster.type)} ${disaster.name}
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+              <p style="margin: 0;"><strong>Type:</strong> ${disaster.type}</p>
+              <p style="margin: 0;"><strong>Severity:</strong> <span style="color: ${getSeverityColor(disaster.severity)}; font-weight: 600;">${disaster.severity.toUpperCase()}</span></p>
+              <p style="margin: 0; grid-column: 1 / -1;"><strong>Location:</strong> ${disaster.location.name}</p>
+              <p style="margin: 0; grid-column: 1 / -1;"><strong>Affected:</strong> ${disaster.affectedPopulation.toLocaleString()} people</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="view-needs-${disaster.id}" style="
+              flex: 1;
+              padding: 8px 12px;
+              background: #3b82f6;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              font-size: 12px;
+              font-weight: 500;
+              cursor: pointer;
+              transition: background-color 0.2s;
+            ">📊 View Needs Assessment</button>
+            <button id="view-shipments-${disaster.id}" style="
+              flex: 1;
+              padding: 8px 12px;
+              background: #10b981;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              font-size: 12px;
+              font-weight: 500;
+              cursor: pointer;
+              transition: background-color 0.2s;
+            ">📦 View Active Shipments</button>
+          </div>
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
+            <div style="font-size: 11px; color: #6b7280;">
+              Last updated: ${new Date(disaster.dateTime).toLocaleString()}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Add event listeners to buttons
+      const needsButton = popupContent.querySelector(`#view-needs-${disaster.id}`);
+      const shipmentsButton = popupContent.querySelector(`#view-shipments-${disaster.id}`);
+      
+      if (needsButton) {
+        needsButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onViewNeedsAssessment?.(disaster.id) || onDisasterClick(disaster);
+        });
+      }
+      
+      if (shipmentsButton) {
+        shipmentsButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onViewActiveShipments?.(disaster.id);
+        });
+      }
+
       const marker = L.marker([disaster.location.lat, disaster.location.lng], {
         icon: disasterIcon
       })
-        .bindPopup(`
-          <div>
-            <h3>${disaster.name}</h3>
-            <p><strong>Type:</strong> ${disaster.type}</p>
-            <p><strong>Severity:</strong> ${disaster.severity}</p>
-            <p><strong>Location:</strong> ${disaster.location.name}</p>
-          </div>
-        `)
+        .bindPopup(popupContent)
         .on('click', () => onDisasterClick(disaster));
 
       if (leafletMapRef.current) {
@@ -203,6 +267,95 @@ const WorldMap: React.FC<WorldMapProps> = ({
       if (leafletMapRef.current) {
         marker.addTo(leafletMapRef.current);
         markersRef.current[`center-${center.id}`] = marker;
+      }
+    });
+
+    // Create dynamic shipment lines with status colors
+    shipments.forEach((shipment) => {
+      if (leafletMapRef.current && shipment.currentLocation) {
+        // Find origin and destination coordinates
+        const originCenter = operationalCenters.find(center => center.name === shipment.origin);
+        const destinationCoords = disasters.find(d => d.location.name.includes(shipment.destination.split(',')[0]));
+        
+        if (originCenter && destinationCoords) {
+          // Create path from origin to current location
+          const currentPath = createGreatCircleRoute(
+            originCenter.location, 
+            shipment.currentLocation
+          );
+          
+          // Create path from current location to destination
+          const remainingPath = createGreatCircleRoute(
+            shipment.currentLocation,
+            destinationCoords.location
+          );
+          
+          // Completed route (solid line)
+          const completedLine = L.polyline(
+            currentPath as L.LatLngExpression[],
+            {
+              color: getShipmentStatusColor(shipment.status),
+              weight: 4,
+              opacity: 0.8
+            }
+          ).bindPopup(`
+            <div style="min-width: 250px;">
+              <h3 style="margin: 0 0 8px 0;">🚛 Shipment ${shipment.id}</h3>
+              <p><strong>Status:</strong> <span style="color: ${getShipmentStatusColor(shipment.status)}; font-weight: bold;">${shipment.status.replace('_', ' ').toUpperCase()}</span></p>
+              <p><strong>From:</strong> ${shipment.origin}</p>
+              <p><strong>To:</strong> ${shipment.destination}</p>
+              <p><strong>Current:</strong> ${shipment.currentLocation.name}</p>
+              <p><strong>ETA:</strong> ${new Date(shipment.estimatedArrival).toLocaleDateString()}</p>
+              <button onclick="window.shipmentClickHandler('${shipment.id}')" style="
+                padding: 6px 12px;
+                background: #3b82f6;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+                margin-top: 8px;
+              ">View Details</button>
+            </div>
+          `).on('click', () => onShipmentClick(shipment));
+          
+          // Remaining route (dashed line)
+          const remainingLine = L.polyline(
+            remainingPath as L.LatLngExpression[],
+            {
+              color: getShipmentStatusColor(shipment.status),
+              weight: 2,
+              opacity: 0.5,
+              dashArray: '10, 10'
+            }
+          );
+          
+          // Current location marker
+          const currentLocationIcon = L.divIcon({
+            className: 'shipment-current-marker',
+            html: `<div class="shipment-dot" style="background-color: ${getShipmentStatusColor(shipment.status)};"></div>`,
+            iconSize: [12, 12],
+            iconAnchor: [6, 6]
+          });
+          
+          const currentMarker = L.marker([shipment.currentLocation.lat, shipment.currentLocation.lng], {
+            icon: currentLocationIcon
+          }).bindPopup(`
+            <div>
+              <h3>📍 ${shipment.id} Current Position</h3>
+              <p><strong>Location:</strong> ${shipment.currentLocation.name}</p>
+              <p><strong>Status:</strong> ${shipment.status.replace('_', ' ').toUpperCase()}</p>
+            </div>
+          `);
+          
+          completedLine.addTo(leafletMapRef.current);
+          remainingLine.addTo(leafletMapRef.current);
+          currentMarker.addTo(leafletMapRef.current);
+          
+          markersRef.current[`shipment-completed-${shipment.id}`] = completedLine as any;
+          markersRef.current[`shipment-remaining-${shipment.id}`] = remainingLine as any;
+          markersRef.current[`shipment-current-${shipment.id}`] = currentMarker;
+        }
       }
     });
 

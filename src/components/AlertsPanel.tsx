@@ -1,20 +1,52 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Alert } from '../types';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Alert, AlertRecommendation } from '../types';
 
 interface AlertsPanelProps {
   alerts: Alert[];
   collapsed: boolean;
   onToggleCollapse: () => void;
+  onAlertClick?: (alert: Alert) => void;
+  onAlertAction?: (alertId: string, actionType: string) => void;
 }
 
 const AlertsPanel: React.FC<AlertsPanelProps> = ({
   alerts,
   collapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  onAlertClick,
+  onAlertAction
 }) => {
+  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+  const [showRecommendations, setShowRecommendations] = useState(false);
+  
   const urgentAlerts = alerts.filter(alert => alert.type === 'urgent');
   const infoAlerts = alerts.filter(alert => alert.type === 'info');
+  
+  const handleAlertClick = (alert: Alert) => {
+    setSelectedAlert(alert);
+    if (alert.recommendations && alert.recommendations.length > 0) {
+      setShowRecommendations(true);
+    }
+    onAlertClick?.(alert);
+  };
+  
+  const handleAlertAction = (actionType: string) => {
+    if (selectedAlert) {
+      onAlertAction?.(selectedAlert.id, actionType);
+      setShowRecommendations(false);
+      setSelectedAlert(null);
+    }
+  };
+  
+  const getStatusIcon = (status?: string) => {
+    switch (status) {
+      case 'resolved': return '✅';
+      case 'awaiting_resolution': return '⏳';
+      case 'active': 
+      default: return '🔥';
+    }
+  };
 
   const getTimeAgo = (timestamp: string) => {
     const now = new Date();
@@ -68,17 +100,29 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
             {urgentAlerts.map((alert) => (
               <motion.div
                 key={alert.id}
-                className="alert-item urgent"
+                className={`alert-item urgent ${alert.status || 'active'}`}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
+                onClick={() => handleAlertClick(alert)}
+                style={{ cursor: 'pointer' }}
               >
+                <div className="alert-status-icon">
+                  {getStatusIcon(alert.status)}
+                </div>
                 <div className="alert-content">
                   <div className="alert-message">{alert.message}</div>
-                  <div className="alert-time">{getTimeAgo(alert.timestamp)}</div>
+                  <div className="alert-meta">
+                    <span className="alert-time">{getTimeAgo(alert.timestamp)}</span>
+                    {alert.relatedType && (
+                      <span className="alert-type">#{alert.relatedType}</span>
+                    )}
+                  </div>
                 </div>
                 <div className="alert-actions">
-                  <button className="alert-action-btn">View</button>
+                  <button className="alert-action-btn">
+                    {alert.recommendations ? '🎯 Action' : 'View'}
+                  </button>
                 </div>
               </motion.div>
             ))}
@@ -94,14 +138,24 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
             {infoAlerts.map((alert) => (
               <motion.div
                 key={alert.id}
-                className="alert-item info"
+                className={`alert-item info ${alert.status || 'active'}`}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 }}
+                onClick={() => handleAlertClick(alert)}
+                style={{ cursor: 'pointer' }}
               >
+                <div className="alert-status-icon">
+                  {getStatusIcon(alert.status)}
+                </div>
                 <div className="alert-content">
                   <div className="alert-message">{alert.message}</div>
-                  <div className="alert-time">{getTimeAgo(alert.timestamp)}</div>
+                  <div className="alert-meta">
+                    <span className="alert-time">{getTimeAgo(alert.timestamp)}</span>
+                    {alert.relatedType && (
+                      <span className="alert-type">#{alert.relatedType}</span>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -119,6 +173,84 @@ const AlertsPanel: React.FC<AlertsPanelProps> = ({
       <div className="alerts-footer">
         <button className="clear-all-btn">Clear All Notifications</button>
       </div>
+
+      {/* Human-in-the-Loop Recommendations Modal */}
+      <AnimatePresence>
+        {showRecommendations && selectedAlert && selectedAlert.recommendations && (
+          <motion.div
+            className="recommendations-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowRecommendations(false)}
+          >
+            <motion.div
+              className="recommendations-modal"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h3>🤖 Human-in-the-Loop Agent</h3>
+                <p className="alert-context">{selectedAlert.message}</p>
+              </div>
+
+              <div className="recommendations-content">
+                {selectedAlert.recommendations.map((recommendation) => (
+                  <div key={recommendation.id} className="recommendation-card">
+                    <div className="recommendation-header">
+                      <h4>{recommendation.title}</h4>
+                      <div className="impact-metrics">
+                        {recommendation.costImpact && (
+                          <span className={`impact-badge ${recommendation.costImpact.includes('+') ? 'negative' : 'positive'}`}>
+                            💰 {recommendation.costImpact}
+                          </span>
+                        )}
+                        {recommendation.timeImpact && (
+                          <span className={`impact-badge ${recommendation.timeImpact.includes('+') ? 'negative' : 'positive'}`}>
+                            ⏱️ {recommendation.timeImpact}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <p className="recommendation-description">
+                      {recommendation.description}
+                    </p>
+                    
+                    <div className="recommendation-actions">
+                      {recommendation.actions.map((action) => (
+                        <motion.button
+                          key={action.id}
+                          onClick={() => handleAlertAction(action.type)}
+                          className={`recommendation-btn ${action.primary ? 'primary' : 'secondary'}`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {action.type === 'approve' && '✅ Approve Recommended Action'}
+                          {action.type === 'view_route' && '🗺️ View Alternative Route on Map'}
+                          {action.type === 'contact' && '📞 Contact Carrier'}
+                          {action.type === 'report_issue' && '⚠️ Report Issue'}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="modal-footer">
+                <button 
+                  onClick={() => setShowRecommendations(false)}
+                  className="close-modal-btn"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
