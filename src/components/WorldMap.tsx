@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Disaster, OperationalCenter, Shipment } from '../types';
 
 interface WorldMapProps {
@@ -68,163 +70,121 @@ const WorldMap: React.FC<WorldMapProps> = ({
     return { x, y };
   };
 
+  const mapRef = useRef<HTMLDivElement>(null);
+  const leafletMapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<{ [key: string]: L.Marker | L.CircleMarker }>({});
+
+  useEffect(() => {
+    if (!mapRef.current || leafletMapRef.current) return;
+
+    const map = L.map(mapRef.current).setView([51.505, -0.09], 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmail.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const exampleMarker = L.marker([51.5, -0.09]).addTo(map)
+      .bindPopup('A pretty CSS popup.<br> Easily customizable.')
+      .openPopup();
+
+    leafletMapRef.current = map;
+
+    return () => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.remove();
+        leafletMapRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+
+    Object.values(markersRef.current).forEach(marker => {
+      if (leafletMapRef.current && leafletMapRef.current.hasLayer(marker)) {
+        leafletMapRef.current.removeLayer(marker);
+      }
+    });
+    markersRef.current = {};
+
+    disasters.forEach((disaster) => {
+      const marker = L.circleMarker([disaster.location.lat, disaster.location.lng], {
+        radius: 15,
+        fillColor: getSeverityColor(disaster.severity),
+        color: getSeverityColor(disaster.severity),
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.8
+      })
+        .bindPopup(`
+          <div>
+            <h3>${disaster.name}</h3>
+            <p><strong>Type:</strong> ${disaster.type}</p>
+            <p><strong>Severity:</strong> ${disaster.severity}</p>
+            <p><strong>Location:</strong> ${disaster.location.name}</p>
+          </div>
+        `)
+        .on('click', () => onDisasterClick(disaster));
+
+      if (leafletMapRef.current) {
+        marker.addTo(leafletMapRef.current);
+        markersRef.current[`disaster-${disaster.id}`] = marker;
+      }
+    });
+
+    operationalCenters.forEach((center) => {
+      const marker = L.marker([center.location.lat, center.location.lng])
+        .bindPopup(`
+          <div>
+            <h3>${center.name}</h3>
+            <p><strong>Inventory Status:</strong> ${center.inventoryStatus}</p>
+            <p><strong>Location:</strong> ${center.location.name}</p>
+          </div>
+        `)
+        .on('click', () => onCenterClick(center));
+
+      if (leafletMapRef.current) {
+        marker.addTo(leafletMapRef.current);
+        markersRef.current[`center-${center.id}`] = marker;
+      }
+    });
+
+    shipments.forEach((shipment) => {
+      const origin = operationalCenters.find(oc => oc.name === shipment.origin);
+      const disaster = disasters.find(d => d.location.name === shipment.destination);
+      
+      if (origin && disaster && leafletMapRef.current) {
+        const polyline = L.polyline(
+          [
+            [origin.location.lat, origin.location.lng],
+            [disaster.location.lat, disaster.location.lng]
+          ],
+          {
+            color: getShipmentStatusColor(shipment.status),
+            weight: 4,
+            opacity: 0.8,
+            dashArray: shipment.status === 'delayed' ? '10, 10' : undefined
+          }
+        )
+          .bindPopup(`
+            <div>
+              <h3>Shipment ${shipment.id}</h3>
+              <p><strong>Status:</strong> ${shipment.status}</p>
+              <p><strong>From:</strong> ${shipment.origin}</p>
+              <p><strong>To:</strong> ${shipment.destination}</p>
+            </div>
+          `)
+          .on('click', () => onShipmentClick(shipment));
+
+        polyline.addTo(leafletMapRef.current);
+        markersRef.current[`shipment-${shipment.id}`] = polyline as any;
+      }
+    });
+  }, [disasters, operationalCenters, shipments, onDisasterClick, onCenterClick, onShipmentClick]);
+
   return (
     <div className="world-map">
-      <svg viewBox="0 0 900 500" className="map-svg">
-        <rect x="0" y="0" width="900" height="500" fill="#0f172a" />
-        
-        <g className="continents">
-          <path
-            d="M 150 150 Q 200 100 300 120 Q 400 130 450 160 Q 500 180 400 220 Q 300 240 200 220 Q 150 200 150 150 Z"
-            fill="#334155"
-            stroke="#475569"
-            strokeWidth="1"
-          />
-          <path
-            d="M 500 200 Q 600 180 700 200 Q 750 220 720 280 Q 680 320 600 300 Q 520 280 500 200 Z"
-            fill="#334155"
-            stroke="#475569"
-            strokeWidth="1"
-          />
-          <path
-            d="M 100 300 Q 200 280 300 300 Q 400 320 350 380 Q 300 400 200 380 Q 100 360 100 300 Z"
-            fill="#334155"
-            stroke="#475569"
-            strokeWidth="1"
-          />
-        </g>
-
-        {shipments.map((shipment) => {
-          const origin = operationalCenters.find(oc => oc.name === shipment.origin);
-          const disaster = disasters.find(d => d.location.name === shipment.destination);
-          
-          if (!origin || !disaster) return null;
-          
-          const originCoords = convertToMapCoordinates(origin.location.lat, origin.location.lng);
-          const destCoords = convertToMapCoordinates(disaster.location.lat, disaster.location.lng);
-          
-          return (
-            <motion.line
-              key={shipment.id}
-              x1={originCoords.x}
-              y1={originCoords.y}
-              x2={destCoords.x}
-              y2={destCoords.y}
-              stroke={getShipmentStatusColor(shipment.status)}
-              strokeWidth="3"
-              strokeDasharray={shipment.status === 'delayed' ? '5,5' : '0'}
-              className="shipment-line"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 2 }}
-              onMouseEnter={() => setHoveredItem(`shipment-${shipment.id}`)}
-              onMouseLeave={() => setHoveredItem(null)}
-              onClick={() => onShipmentClick(shipment)}
-              style={{ cursor: 'pointer' }}
-            />
-          );
-        })}
-
-        {disasters.map((disaster) => {
-          const coords = convertToMapCoordinates(disaster.location.lat, disaster.location.lng);
-          return (
-            <motion.g
-              key={disaster.id}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
-              onMouseEnter={() => setHoveredItem(`disaster-${disaster.id}`)}
-              onMouseLeave={() => setHoveredItem(null)}
-              onClick={() => onDisasterClick(disaster)}
-              style={{ cursor: 'pointer' }}
-            >
-              <circle
-                cx={coords.x}
-                cy={coords.y}
-                r="20"
-                fill={getSeverityColor(disaster.severity)}
-                opacity="0.3"
-                className="disaster-pulse"
-              />
-              <circle
-                cx={coords.x}
-                cy={coords.y}
-                r="12"
-                fill={getSeverityColor(disaster.severity)}
-              />
-              <text
-                x={coords.x}
-                y={coords.y + 5}
-                textAnchor="middle"
-                fontSize="16"
-                fill="white"
-              >
-                {getDisasterIcon(disaster.type)}
-              </text>
-            </motion.g>
-          );
-        })}
-
-        {operationalCenters.map((center) => {
-          const coords = convertToMapCoordinates(center.location.lat, center.location.lng);
-          return (
-            <motion.g
-              key={center.id}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              onMouseEnter={() => setHoveredItem(`center-${center.id}`)}
-              onMouseLeave={() => setHoveredItem(null)}
-              onClick={() => onCenterClick(center)}
-              style={{ cursor: 'pointer' }}
-            >
-              <rect
-                x={coords.x - 8}
-                y={coords.y - 8}
-                width="16"
-                height="16"
-                fill={getInventoryStatusColor(center.inventoryStatus)}
-                rx="2"
-              />
-              <text
-                x={coords.x}
-                y={coords.y + 3}
-                textAnchor="middle"
-                fontSize="10"
-                fill="white"
-                fontWeight="bold"
-              >
-                🏪
-              </text>
-            </motion.g>
-          );
-        })}
-      </svg>
-
-      {hoveredItem && (
-        <motion.div
-          className="tooltip"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          {hoveredItem.startsWith('disaster-') && (
-            <div>
-              {disasters.find(d => `disaster-${d.id}` === hoveredItem)?.name}
-            </div>
-          )}
-          {hoveredItem.startsWith('center-') && (
-            <div>
-              {operationalCenters.find(c => `center-${c.id}` === hoveredItem)?.name}
-            </div>
-          )}
-          {hoveredItem.startsWith('shipment-') && (
-            <div>
-              Shipment {shipments.find(s => `shipment-${s.id}` === hoveredItem)?.id}
-            </div>
-          )}
-        </motion.div>
-      )}
+      <div ref={mapRef} style={{ height: '500px', width: '100%' }} />
     </div>
   );
 };
