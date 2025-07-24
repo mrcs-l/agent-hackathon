@@ -264,71 +264,23 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Live Impact Metrics */}
       <div className="impact-metrics-section">
         <h4>🎯 Live Impact Metrics</h4>
-        <div className="impact-grid">
-          <motion.div 
-            className="impact-card people-helped"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="impact-icon">👥</div>
-            <div className="impact-content">
-              <div className="impact-number">
-                <AnimatedCounter 
-                  value={animatedMetrics.peopleHelped} 
-                  formatter={(n) => n.toLocaleString()}
-                  className="impact-value"
-                  duration={1200}
-                />
-              </div>
-              <div className="impact-label">People Helped</div>
-              <div className="impact-trend">↗ +{Math.floor(Math.random() * 2000) + 500}/hr</div>
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            className="impact-card waste-prevented"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="impact-icon">
-              <div style={{ width: '10px', height: '10px', backgroundColor: '#10b981', borderRadius: '2px' }}></div>
-            </div>
-            <div className="impact-content">
-              <div className="impact-number">
-                <AnimatedCounter 
-                  value={animatedMetrics.wastePrevented} 
-                  formatter={(n) => n.toLocaleString()}
-                  className="impact-value"
-                  duration={1200}
-                />
-              </div>
-              <div className="impact-label">Tons Waste Prevented</div>
-              <div className="impact-trend">↗ +{Math.floor(Math.random() * 100) + 50}/hr</div>
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            className="impact-card cost-saved"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="impact-icon">
-              <div style={{ width: '10px', height: '10px', backgroundColor: '#eab308', borderRadius: '2px' }}></div>
-            </div>
-            <div className="impact-content">
-              <div className="impact-number">
-                <AnimatedCounter 
-                  value={animatedMetrics.costSaved} 
-                  formatter={(n) => `$${Math.floor(n / 1000000)}M`}
-                  className="impact-value"
-                  duration={1200}
-                />
-              </div>
-              <div className="impact-label">Cost Saved</div>
-              <div className="impact-trend">↗ +${Math.floor(Math.random() * 50) + 25}K/hr</div>
-            </div>
-          </motion.div>
-          
+        <div className="impact-grid" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* People Helped Rate Only */}
+          <div className="impact-rate-block">
+            <div className="impact-label" style={{ color: '#e2e8f0', fontWeight: 500 }}>People Helped</div>
+            <div className="impact-trend" style={{ color: '#22d3ee', fontWeight: 600, fontSize: '1.1em' }}>↗ +{Math.floor(Math.random() * 2000) + 500}/hr</div>
+          </div>
+          {/* Tons Waste Prevented Rate Only */}
+          <div className="impact-rate-block">
+            <div className="impact-label" style={{ color: '#e2e8f0', fontWeight: 500 }}>Tons Waste Prevented</div>
+            <div className="impact-trend" style={{ color: '#a3e635', fontWeight: 600, fontSize: '1.1em' }}>↗ +{Math.floor(Math.random() * 100) + 50}/hr</div>
+          </div>
+          {/* Cost Saved Rate Only */}
+          <div className="impact-rate-block">
+            <div className="impact-label" style={{ color: '#e2e8f0', fontWeight: 500 }}>Cost Saved</div>
+            <div className="impact-trend" style={{ color: '#facc15', fontWeight: 600, fontSize: '1.1em' }}>↗ +${Math.floor(Math.random() * 50) + 25}K/hr</div>
+          </div>
+          {/* Active Operations (with number) */}
           <motion.div 
             className="impact-card operations"
             whileHover={{ scale: 1.02 }}
@@ -356,7 +308,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </motion.div>
         </div>
-        
         <div className="efficiency-indicator">
           <div className="efficiency-label">System Efficiency</div>
           <div className="efficiency-bar">
