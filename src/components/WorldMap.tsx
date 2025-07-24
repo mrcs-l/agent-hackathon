@@ -176,8 +176,26 @@ const WorldMap: React.FC<WorldMapProps> = ({
   }, [onDisasterClick, onCenterClick, onRouteClick]);
 
   return (
-    <div className="world-map" style={{ height: '100%', width: '100%', position: 'relative' }}>
-      <div ref={cesiumContainerRef} style={{ height: '100%', width: '100%' }} />
+    <div
+      className="world-map-cropped"
+      style={{
+        height: 'calc(100% - 60px)', // crop 60px from the bottom
+        width: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: '16px'
+      }}
+    >
+      <div
+        ref={cesiumContainerRef}
+        style={{
+          height: 'calc(100% + 60px)', // make globe slightly taller so bottom is cropped
+          width: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0
+        }}
+      />
     </div>
   );
 };
