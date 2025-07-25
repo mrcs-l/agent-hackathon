@@ -152,6 +152,61 @@ export const mockDisasters: Disaster[] = [
       { id: '31', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 60000, quantityMatched: 45000, priority: 'medium', source: 'WHO' },
       { id: '32', category: 'Water', specificItem: 'Water Containers', quantityRequested: 1500000, quantityMatched: 1200000, priority: 'medium', source: 'UNICEF' }
     ]
+  },
+  {
+    id: 'disaster-kenya',
+    name: 'Flooding in Kenya',
+    type: 'flood',
+    severity: 'high',
+    location: {
+      lat: -1.2921,
+      lng: 36.8219,
+      name: 'Nairobi, Kenya'
+    },
+    affectedPopulation: 2500000,
+    dateTime: '2024-07-25T09:00:00Z',
+    needs: [
+      { id: 'kenya-1', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 8000, quantityMatched: 5000, priority: 'high', source: 'Kenya Red Cross' },
+      { id: 'kenya-2', category: 'Water', specificItem: 'Water Containers', quantityRequested: 20000, quantityMatched: 12000, priority: 'high', source: 'UNICEF' },
+      { id: 'kenya-3', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 5000, quantityMatched: 2000, priority: 'medium', source: 'UNHCR' },
+      { id: 'kenya-4', category: 'Food', specificItem: 'Food Rations', quantityRequested: 100000, quantityMatched: 60000, priority: 'medium', source: 'WFP' }
+    ]
+  },
+  {
+    id: 'disaster-dhaka',
+    name: 'Flooding in Bangladesh',
+    type: 'flood',
+    severity: 'critical',
+    location: {
+      lat: 23.6850,
+      lng: 90.3563,
+      name: 'Dhaka, Bangladesh'
+    },
+    affectedPopulation: 18000000,
+    dateTime: '2024-07-26T10:00:00Z',
+    needs: [
+      { id: 'dhaka-1', category: 'Water', specificItem: 'Water Purification Systems', quantityRequested: 100000, quantityMatched: 50000, priority: 'high', source: 'UNICEF' },
+      { id: 'dhaka-2', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 200000, quantityMatched: 100000, priority: 'high', source: 'UNHCR' },
+      { id: 'dhaka-3', category: 'Medical', specificItem: 'Medical Kits', quantityRequested: 50000, quantityMatched: 25000, priority: 'high', source: 'WHO' }
+    ]
+  },
+  {
+    id: 'disaster-manila',
+    name: 'Typhoon in the Philippines',
+    type: 'hurricane',
+    severity: 'high',
+    location: {
+      lat: 14.5995,
+      lng: 120.9842,
+      name: 'Manila, Philippines'
+    },
+    affectedPopulation: 12000000,
+    dateTime: '2024-07-27T08:00:00Z',
+    needs: [
+      { id: 'manila-1', category: 'Food', specificItem: 'Emergency Food Rations', quantityRequested: 500000, quantityMatched: 200000, priority: 'high', source: 'WFP' },
+      { id: 'manila-2', category: 'Medical', specificItem: 'Medical Emergency Kits', quantityRequested: 60000, quantityMatched: 30000, priority: 'high', source: 'WHO' },
+      { id: 'manila-3', category: 'Shelter', specificItem: 'Emergency Tents', quantityRequested: 200000, quantityMatched: 100000, priority: 'high', source: 'UNHCR' }
+    ]
   }
 ];
 
