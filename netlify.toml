@@ -1,0 +1,20 @@
+[build]
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/cesium/*"
+  to = "/cesium/:splat"
+  status = 200
+
+[[headers]]
+  for = "/cesium/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "public, max-age=31536000"
+
+[build.processing]
+  skip_processing = false 

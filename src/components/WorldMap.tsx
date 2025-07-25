@@ -4,7 +4,10 @@ import { Disaster, OperationalCenter, Shipment, Route } from '../types';
 import { Viewer, Cartesian3, Color, Entity, ScreenSpaceEventHandler, ScreenSpaceEventType, CallbackProperty, PolylineGlowMaterialProperty, Math as CesiumMath, Cartesian2, ConstantProperty, ConstantPositionProperty } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 
-(window as any).CESIUM_BASE_URL = '/cesium';
+// Set Cesium base URL for production builds
+if (typeof window !== 'undefined') {
+  (window as any).CESIUM_BASE_URL = '/cesium';
+}
 
 interface WorldMapProps {
   disasters: Disaster[];
