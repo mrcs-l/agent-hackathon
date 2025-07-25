@@ -172,7 +172,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
           </div>
 
           <div className="mini-map-container">
-            <h4>🚛 Current Position</h4>
+            <h4>Current Position</h4>
             <div className="mini-map">
               <div className="map-placeholder">
                 <div className="route-line"></div>
