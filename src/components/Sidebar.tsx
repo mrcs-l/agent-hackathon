@@ -264,7 +264,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* Live Impact Metrics */}
       <div className="impact-metrics-section">
         <h4>🎯 Live Impact Metrics</h4>
-        <div className="impact-grid" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="impact-grid" style={{ display: 'flex', flexDirection: 'column', gap: '2.2rem' }}>
           {/* People Helped Rate Only */}
           <div className="impact-rate-block">
             <div className="impact-label" style={{ color: '#e2e8f0', fontWeight: 500 }}>People Helped</div>
@@ -281,44 +281,27 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="impact-trend" style={{ color: '#facc15', fontWeight: 600, fontSize: '1.1em' }}>↗ +${Math.floor(Math.random() * 50) + 25}K/hr</div>
           </div>
           {/* Active Operations (with number) */}
-          <motion.div 
-            className="impact-card operations"
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="impact-icon">
-              <div style={{ width: '10px', height: '10px', backgroundColor: '#3b82f6', borderRadius: '2px' }}></div>
+          <div style={{ margin: '2.5rem 0 0.5rem 0', padding: '0 0 0.5rem 0', borderBottom: '1px solid #334155', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.2rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>{animatedMetrics.totalOperations}</div>
+            <div style={{ fontSize: '0.95rem', color: '#94a3b8', fontWeight: 400, marginBottom: '0.5rem', letterSpacing: '0.01em' }}>Active Operations</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.95rem', color: '#16a34a', fontWeight: 500, marginBottom: '0.5rem' }}>
+              <span style={{ width: '10px', height: '10px', backgroundColor: '#16a34a', borderRadius: '50%', display: 'inline-block' }}></span>
+              All Systems Operational
             </div>
-            <div className="impact-content">
-              <div className="impact-number">
-                <AnimatedCounter 
-                  value={animatedMetrics.totalOperations} 
-                  formatter={(n) => n.toLocaleString()}
-                  className="impact-value"
-                  duration={1000}
-                />
-              </div>
-              <div className="impact-label">Active Operations</div>
-              <div className="impact-trend">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <div style={{ width: '6px', height: '6px', backgroundColor: '#10b981', borderRadius: '50%' }}></div>
-                  All Systems Operational
-                </div>
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </div>
-        <div className="efficiency-indicator">
-          <div className="efficiency-label">System Efficiency</div>
-          <div className="efficiency-bar">
+        <div className="efficiency-indicator" style={{ marginTop: '1.5rem', paddingTop: '0.5rem' }}>
+          <div className="efficiency-label" style={{ fontWeight: 500, color: '#e2e8f0', marginBottom: '0.5rem' }}>System Efficiency</div>
+          <div className="efficiency-bar" style={{ marginBottom: '0.5rem' }}>
             <motion.div 
               className="efficiency-fill"
               initial={{ width: '0%' }}
               animate={{ width: '87%' }}
               transition={{ duration: 2, ease: "easeOut" }}
+              style={{ height: '10px', borderRadius: '6px', background: 'linear-gradient(90deg, #22d3ee 0%, #16a34a 100%)' }}
             />
           </div>
-          <div className="efficiency-value">87% - Excellent Performance</div>
+          <div className="efficiency-value" style={{ color: '#a3e635', fontWeight: 700, fontSize: '1.1em' }}>87% - Excellent Performance</div>
         </div>
       </div>
 
