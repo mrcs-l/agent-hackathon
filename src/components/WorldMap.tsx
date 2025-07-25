@@ -465,34 +465,31 @@ const WorldMap: React.FC<WorldMapProps> = ({
         const totalNeeded = disaster.needs.reduce((sum, need) => sum + need.quantityRequested, 0);
         const totalMatched = disaster.needs.reduce((sum, need) => sum + need.quantityMatched, 0);
         const matchPercentage = totalNeeded > 0 ? ((totalMatched / totalNeeded) * 100).toFixed(1) : '0';
-        
         return (
-          <div className="map-popup disaster-popup">
+          <div className="map-popup disaster-popup" style={{
+            background: 'rgba(20,24,36,0.92)',
+            color: '#e2e8f0',
+            padding: '1.1rem 1.3rem',
+            borderRadius: '12px',
+            minWidth: 220,
+            fontSize: 15,
+            fontFamily: 'system-ui, sans-serif',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.25)'
+          }}>
             <div className="popup-header">
-              <h4>{disaster.name}</h4>
-              <span className={`severity-badge ${disaster.severity}`}>{disaster.severity.toUpperCase()}</span>
+              <h4 style={{margin: 0, fontWeight: 700, fontSize: '1.15em'}}>{disaster.name}</h4>
+              <span className={`severity-badge ${disaster.severity}`} style={{marginLeft: 8, fontWeight: 600, color: '#facc15'}}>{disaster.severity.toUpperCase()}</span>
             </div>
             <div className="popup-content">
-              <div className="popup-stat">
-                <span className="stat-label">Location:</span>
-                <span className="stat-value">{disaster.location.name}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Affected Population:</span>
-                <span className="stat-value">{disaster.affectedPopulation.toLocaleString()}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Needs Matched:</span>
-                <span className="stat-value">{matchPercentage}%</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Critical Needs:</span>
-                <span className="stat-value">{disaster.needs.filter(n => n.priority === 'high').length}</span>
-              </div>
+              <div className="popup-stat"><span className="stat-label">Location:</span> <span className="stat-value">{disaster.location.name}</span></div>
+              <div className="popup-stat"><span className="stat-label">Affected Population:</span> <span className="stat-value">{disaster.affectedPopulation.toLocaleString()}</span></div>
+              <div className="popup-stat"><span className="stat-label">Needs Matched:</span> <span className="stat-value">{matchPercentage}%</span></div>
+              <div className="popup-stat"><span className="stat-label">Critical Needs:</span> <span className="stat-value">{disaster.needs.filter(n => n.priority === 'high').length}</span></div>
             </div>
-            <div className="popup-actions">
+            <div className="popup-actions" style={{marginTop: '0.8em'}}>
               <button 
                 className="popup-btn primary"
+                style={{background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 5, padding: '0.4em 0.8em', fontSize: '0.95em', cursor: 'pointer'}} 
                 onClick={() => {
                   onViewNeedsAssessment?.(disaster.id);
                   setShowPopup(false);
@@ -500,8 +497,9 @@ const WorldMap: React.FC<WorldMapProps> = ({
               >
                 View Needs Assessment
               </button>
-              <button 
+              <button
                 className="popup-btn secondary"
+                style={{background: '#10b981', color: '#fff', border: 'none', borderRadius: 5, padding: '0.4em 0.8em', fontSize: '0.95em', cursor: 'pointer', marginLeft: 8}}
                 onClick={() => {
                   onViewActiveShipments?.(disaster.id);
                   setShowPopup(false);
@@ -516,32 +514,30 @@ const WorldMap: React.FC<WorldMapProps> = ({
       case 'center':
         const center = popupData as OperationalCenter;
         return (
-          <div className="map-popup center-popup">
+          <div className="map-popup center-popup" style={{
+            background: 'rgba(20,24,36,0.92)',
+            color: '#e2e8f0',
+            padding: '1.1rem 1.3rem',
+            borderRadius: '12px',
+            minWidth: 220,
+            fontSize: 15,
+            fontFamily: 'system-ui, sans-serif',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.25)'
+          }}>
             <div className="popup-header">
-              <h4>{center.name}</h4>
-              <span className={`status-badge ${center.inventoryStatus}`}>{center.inventoryStatus.toUpperCase()}</span>
+              <h4 style={{margin: 0, fontWeight: 700, fontSize: '1.15em'}}>{center.name}</h4>
+              <span className={`status-badge ${center.inventoryStatus}`} style={{marginLeft: 8, fontWeight: 600, color: '#a3e635'}}>{center.inventoryStatus.toUpperCase()}</span>
             </div>
             <div className="popup-content">
-              <div className="popup-stat">
-                <span className="stat-label">Location:</span>
-                <span className="stat-value">{center.location.name}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Total Items:</span>
-                <span className="stat-value">{center.totalItems.toLocaleString()}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Categories:</span>
-                <span className="stat-value">{center.totalCategories}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Inventory Value:</span>
-                <span className="stat-value">${(center.inventoryValue / 1000000).toFixed(1)}M</span>
-              </div>
+              <div className="popup-stat"><span className="stat-label">Location:</span> <span className="stat-value">{center.location.name}</span></div>
+              <div className="popup-stat"><span className="stat-label">Total Items:</span> <span className="stat-value">{center.totalItems.toLocaleString()}</span></div>
+              <div className="popup-stat"><span className="stat-label">Categories:</span> <span className="stat-value">{center.totalCategories}</span></div>
+              <div className="popup-stat"><span className="stat-label">Inventory Value:</span> <span className="stat-value">${(center.inventoryValue / 1000000).toFixed(1)}M</span></div>
             </div>
-            <div className="popup-actions">
+            <div className="popup-actions" style={{marginTop: '0.8em'}}>
               <button 
                 className="popup-btn primary"
+                style={{background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 5, padding: '0.4em 0.8em', fontSize: '0.95em', cursor: 'pointer'}} 
                 onClick={() => {
                   onCenterClick(center);
                   setShowPopup(false);
@@ -564,7 +560,16 @@ const WorldMap: React.FC<WorldMapProps> = ({
         };
         
         return (
-          <div className="map-popup shipment-popup">
+          <div className="map-popup shipment-popup" style={{
+            background: 'rgba(20,24,36,0.92)',
+            color: '#e2e8f0',
+            padding: '1.1rem 1.3rem',
+            borderRadius: '12px',
+            minWidth: 220,
+            fontSize: 15,
+            fontFamily: 'system-ui, sans-serif',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.25)'
+          }}>
             <div className="popup-header">
               <h4>Shipment {shipment.id}</h4>
               <span 
@@ -611,7 +616,16 @@ const WorldMap: React.FC<WorldMapProps> = ({
         const totalResources = route.resources.reduce((sum, resource) => sum + resource.quantity, 0);
         
         return (
-          <div className="map-popup route-popup">
+          <div className="map-popup route-popup" style={{
+            background: 'rgba(20,24,36,0.92)',
+            color: '#e2e8f0',
+            padding: '1.1rem 1.3rem',
+            borderRadius: '12px',
+            minWidth: 220,
+            fontSize: 15,
+            fontFamily: 'system-ui, sans-serif',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.25)'
+          }}>
             <div className="popup-header">
               <h4>Route {route.id}</h4>
               <span className={`priority-badge ${route.priority}`}>{route.priority.toUpperCase()}</span>
@@ -692,13 +706,34 @@ const WorldMap: React.FC<WorldMapProps> = ({
               pointerEvents: 'auto'
             }}
           >
-            {renderPopupContent()}
-            <button 
-              className="popup-close"
-              onClick={() => setShowPopup(false)}
-            >
-              ×
-            </button>
+            <div style={{ position: 'relative' }}>
+              <button 
+                className="popup-close"
+                onClick={() => setShowPopup(false)}
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  width: 28,
+                  height: 28,
+                  background: '#dc2626',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '50%',
+                  fontSize: '1.2em',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                }}
+                aria-label="Close popup"
+              >
+                ×
+              </button>
+              {renderPopupContent()}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
