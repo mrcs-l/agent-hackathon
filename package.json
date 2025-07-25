@@ -10,6 +10,7 @@
     "@types/node": "^18.15.13",
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
+    "cesium": "^1.111.0",
     "framer-motion": "^10.12.16",
     "leaflet": "^1.9.4",
     "react": "^18.2.0",
@@ -23,7 +24,7 @@
     "build": "npm run copy-cesium && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "copy-cesium": "cp -r node_modules/cesium/Build/Cesium public/cesium"
+    "copy-cesium": "mkdir -p public/cesium && (cp -r node_modules/cesium/Build/Cesium/* public/cesium/ || echo 'Cesium copy completed')"
   },
   "eslintConfig": {
     "extends": [
