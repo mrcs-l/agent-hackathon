@@ -72,6 +72,42 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
     return updates[Math.floor(Math.random() * updates.length)];
   };
 
+  // Helper function to get status icons
+  const getStatusIcon = (status: string) => {
+    const icons = {
+      'loading': '📦',
+      'in_transit': '🚛',
+      'delayed': '⚠️',
+      'delivered': '✅',
+      'exception': '❌'
+    };
+    return icons[status as keyof typeof icons] || '📋';
+  };
+
+  // Helper function to get event icons
+  const getEventIcon = (eventText: string) => {
+    if (eventText.toLowerCase().includes('gps')) return '📍';
+    if (eventText.toLowerCase().includes('driver')) return '👨‍✈️';
+    if (eventText.toLowerCase().includes('temperature')) return '🌡️';
+    if (eventText.toLowerCase().includes('security')) return '🔒';
+    if (eventText.toLowerCase().includes('route')) return '🗺️';
+    if (eventText.toLowerCase().includes('arrival')) return '⏰';
+    if (eventText.toLowerCase().includes('loading')) return '📦';
+    if (eventText.toLowerCase().includes('departure')) return '🚀';
+    if (eventText.toLowerCase().includes('checkpoint')) return '✅';
+    if (eventText.toLowerCase().includes('delay')) return '⏳';
+    return '📋';
+  };
+
+  // Helper function to get action icons
+  const getActionIcon = (action: string) => {
+    if (action.toLowerCase().includes('contact')) return '📞';
+    if (action.toLowerCase().includes('report')) return '📝';
+    if (action.toLowerCase().includes('alternative')) return '🔄';
+    if (action.toLowerCase().includes('track')) return '📍';
+    return '⚙️';
+  };
+
   const handleContactCarrier = () => {
     setShowContactModal(true);
   };
@@ -123,6 +159,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
         <h2>Shipment Tracking: {shipment.id}</h2>
         <div className="header-actions">
           <span className={`status-badge status-${shipment.status}`}>
+            <span className="status-icon">{getStatusIcon(shipment.status)}</span>
             {shipment.status.replace('_', ' ').toUpperCase()}
           </span>
         </div>
@@ -187,7 +224,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-               Contact Carrier
+              📞 Contact Carrier
             </motion.button>
             
             <motion.button
@@ -196,7 +233,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-               Report Issue
+              📝 Report Issue
             </motion.button>
             
             <motion.button
@@ -212,7 +249,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
                   Processing...
                 </>
               ) : (
-                ' Approve Recommended Action'
+                '✅ Approve Recommended Action'
               )}
             </motion.button>
             
@@ -222,7 +259,7 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-               View Alternative Routes
+              🔄 View Alternative Routes
             </motion.button>
           </div>
         </div>
@@ -307,9 +344,12 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
                     {new Date(event.timestamp).toLocaleString()}
                   </div>
                   <div className="timeline-content">
-                    <div className="event-text">{event.event}</div>
+                    <div className="event-text">
+                      <span className="event-icon">{getEventIcon(event.event)}</span>
+                      {event.event}
+                    </div>
                     {event.location && (
-                      <div className="event-location"> {event.location}</div>
+                      <div className="event-location">📍 {event.location}</div>
                     )}
                   </div>
                   {index === 0 && (

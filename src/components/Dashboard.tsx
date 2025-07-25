@@ -6,6 +6,7 @@ import AlertsPanel from './AlertsPanel';
 import DisasterNeedsView from './DisasterNeedsView';
 import ShipmentTrackingView from './ShipmentTrackingView';
 import InventoryView from './InventoryView';
+import RouteDetailsView from './RouteDetailsView';
 import { Disaster, OperationalCenter, Shipment, Route, Alert, ImpactMetrics, NotificationPopup, InventoryItem } from '../types';
 import { mockDisasters, mockOperationalCenters, mockShipments, mockAlerts, mockRoutes } from '../data/mockData';
 
@@ -146,6 +147,107 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Auto-rerouting logic: check for low inventory centers
+  const checkAndTriggerAutoRerouting = () => {
+    operationalCenters.forEach(center => {
+      const totalCurrentInventory = center.inventory.reduce((sum, item) => sum + item.quantity, 0);
+      const inventoryRatio = center.totalItems > 0 ? totalCurrentInventory / center.totalItems : 1;
+      
+      // If center is low on inventory and no active resupply route exists
+      if (inventoryRatio < 0.3 && !routes.some(route => 
+        route.destination.name === center.name && 
+        route.id.includes('resupply') && 
+        route.confirmed
+      )) {
+        
+        // Find nearest center with ample supplies
+        const supplierCenter = operationalCenters.find(c => 
+          c.id !== center.id && 
+          c.inventory.reduce((sum, item) => sum + item.quantity, 0) > c.totalItems * 0.7 &&
+          !c.name.toLowerCase().includes('seattle') // Don't use Seattle as supplier if it's in crisis
+        );
+        
+        if (supplierCenter) {
+          triggerAutoResupply(center, supplierCenter);
+        }
+      }
+    });
+  };
+
+  const triggerAutoResupply = (targetCenter: OperationalCenter, supplierCenter: OperationalCenter) => {
+    const resupplyRoute: Route = {
+      id: `auto-resupply-${Date.now()}`,
+      origin: supplierCenter.location,
+      destination: targetCenter.location,
+      confirmed: true,
+      resources: [
+        { type: 'Emergency Supplies', quantity: 20000, unit: 'units' },
+        { type: 'Water Bottles', quantity: 15000, unit: 'bottles' },
+        { type: 'Medical Kits', quantity: 8000, unit: 'kits' }
+      ],
+      estimatedDuration: '4 hours',
+      priority: 'high'
+    };
+    
+    setRoutes(prev => [...prev, resupplyRoute]);
+    
+    // Create corresponding shipment
+    const resupplyShipment: Shipment = {
+      id: `AUTO-RESUPPLY-${Date.now()}`,
+      origin: supplierCenter.name,
+      destination: targetCenter.name,
+      status: 'loading',
+      estimatedArrival: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+      logisticsPartner: 'Auto-Routing System',
+      manifest: resupplyRoute.resources.map(resource => ({
+        item: resource.type,
+        quantity: resource.quantity,
+        unit: resource.unit,
+        corporateDonor: 'Inter-Hub Auto-Transfer'
+      })),
+      timeline: [
+        {
+          timestamp: new Date().toISOString(),
+          event: `Auto-rerouting initiated: ${supplierCenter.name} → ${targetCenter.name}`,
+          location: supplierCenter.name
+        }
+      ]
+    };
+    
+    setShipments(prev => [...prev, resupplyShipment]);
+    
+    // Auto-routing alert
+    const autoRoutingAlert: Alert = {
+      id: `auto-routing-${Date.now()}`,
+      type: 'info',
+      message: `🤖 Auto-routing: ${supplierCenter.name} → ${targetCenter.name} (Low inventory detected)`,
+      timestamp: new Date().toISOString(),
+      relatedId: targetCenter.id,
+      relatedType: 'inventory',
+      status: 'active',
+      recommendations: []
+    };
+    
+    setAlerts(prev => [autoRoutingAlert, ...prev]);
+    
+    // Success notification
+    const autoNotification: NotificationPopup = {
+      id: `auto-routing-notif-${Date.now()}`,
+      type: 'agentforce',
+      title: 'Auto-Routing Activated',
+      message: `Resources automatically rerouted from ${supplierCenter.name} to ${targetCenter.name}`,
+      autoClose: true
+    };
+    setNotifications(prev => [autoNotification, ...prev]);
+    
+        // Update impact metrics
+        setImpactMetrics(prev => ({
+      ...prev,
+      costSaved: prev.costSaved + Math.floor(Math.random() * 25000) + 15000,
+      peopleHelped: prev.peopleHelped + Math.floor(Math.random() * 8000) + 2000
+    }));
+  };
+
   // Enhanced real-time simulation engine
   useEffect(() => {
     if (!simulationActive) return;
@@ -206,7 +308,7 @@ const Dashboard: React.FC = () => {
           disastersResponded: prev.disastersResponded
         }));
       }
-      
+
       // Resolve some alerts gradually
       if (Math.random() < 0.1) {
         setAlerts(prev => prev.map(alert => {
@@ -343,6 +445,241 @@ const Dashboard: React.FC = () => {
     return routes;
   };
   
+  // NEW: Trigger resource center crisis simulation with route selection
+  const triggerResourceCrisis = () => {
+    // Find Seattle center (or create one if not exists)
+    let seattleCenter = operationalCenters.find(center => 
+      center.name.toLowerCase().includes('seattle') || 
+      center.location.name.toLowerCase().includes('seattle')
+    );
+    
+    if (!seattleCenter) {
+      // Create Seattle center if it doesn't exist
+      seattleCenter = {
+        id: 'seattle-demo',
+        name: 'Seattle Emergency Hub',
+        location: { lat: 47.6062, lng: -122.3321, name: 'Seattle, WA' },
+        inventoryStatus: 'critical',
+        totalItems: 100000,
+        totalCategories: 5,
+        inventoryValue: 2500000,
+        inventory: [
+          { id: 'seattle-1', productType: 'Medical', specificItem: 'Emergency Kits', quantity: 500, corporatePartner: 'Local Reserve', dateReceived: '2024-01-01', location: 'Bay A', condition: 'new' },
+          { id: 'seattle-2', productType: 'Water', specificItem: 'Water Bottles', quantity: 2000, corporatePartner: 'Local Reserve', dateReceived: '2024-01-01', location: 'Bay B', condition: 'new' }
+        ]
+      };
+      setOperationalCenters(prev => [...prev, seattleCenter!]);
+    } else {
+      // Drastically reduce Seattle's inventory to trigger crisis
+      setOperationalCenters(prev => prev.map(center => 
+        center.id === seattleCenter!.id 
+          ? { 
+              ...center, 
+              inventoryStatus: 'critical',
+              inventory: center.inventory.map(item => ({ 
+                ...item, 
+                quantity: Math.floor(item.quantity * 0.05) // Reduce to 5% of original
+              }))
+            }
+          : center
+      ));
+    }
+    
+    // Generate AI route suggestions for Seattle resupply
+    const routeOptions = generateSeattleResupplyRoutes(seattleCenter);
+    console.log('Generated route options for Seattle:', routeOptions.length);
+    
+    // Show notification with route selection
+    const notification: NotificationPopup = {
+      id: `seattle-resource-crisis-${Date.now()}`,
+      type: 'alert',
+      title: '🚨 Resource Center Crisis',
+      message: `Seattle Hub inventory critically low. Agentforce has identified ${routeOptions.length} potential resupply routes. Select optimal route for emergency deployment.`,
+      autoClose: false,
+      actions: [
+        { id: 'select-route', label: 'Select Route', type: 'approve', primary: true },
+        { id: 'view-alternatives', label: 'View All Options', type: 'view_route' }
+      ],
+      routeOptions: routeOptions,
+      disasterId: seattleCenter.id
+    };
+    
+    setNotifications(prev => [notification, ...prev]);
+    
+    // Update impact metrics
+    setImpactMetrics(prev => ({
+      ...prev,
+      disastersResponded: prev.disastersResponded + 1
+    }));
+  };
+
+  // Generate resupply route options for Seattle
+  const generateSeattleResupplyRoutes = (targetCenter: OperationalCenter) => {
+    // Find potential supplier centers (exclude Seattle and prioritize by inventory status and distance)
+    const supplierCenters = operationalCenters.filter(center => 
+      center.id !== targetCenter.id && 
+      !center.name.toLowerCase().includes('seattle')
+    );
+
+    // Calculate distances and sort by best candidates
+    const centersWithDistances = supplierCenters.map(center => ({
+      center,
+      distance: calculateDistance(center.location, targetCenter.location),
+      inventoryScore: center.inventoryStatus === 'ample' ? 3 : 
+                     center.inventoryStatus === 'moderate' ? 2 : 1
+    })).sort((a, b) => {
+      // Sort by inventory score first, then by distance
+      if (a.inventoryScore !== b.inventoryScore) {
+        return b.inventoryScore - a.inventoryScore;
+      }
+      return a.distance - b.distance;
+    });
+
+    const routes: Route[] = [];
+
+    // Route 1: Best available center (Primary AI Recommendation)
+    if (centersWithDistances.length > 0) {
+      const primaryCenter = centersWithDistances[0];
+      const estimatedHours = Math.max(4, Math.floor(primaryCenter.distance * 100)); // Rough hour calculation
+      
+      routes.push({
+        id: `seattle-resupply-primary-${Date.now()}`,
+        origin: primaryCenter.center.location,
+        destination: targetCenter.location,
+        confirmed: false,
+        resources: [
+          { type: 'Emergency Kits', quantity: 15000, unit: 'kits' },
+          { type: 'Water Bottles', quantity: 25000, unit: 'bottles' },
+          { type: 'Food Rations', quantity: 20000, unit: 'packages' }
+        ],
+        estimatedDuration: `${estimatedHours} hours`,
+        priority: 'critical',
+        routeType: 'primary',
+        costEstimate: '$125,000',
+        aiConfidence: 94,
+        advantages: ['Best inventory status', 'Optimal distance', 'High reliability'],
+        risks: ['Primary route congestion']
+      });
+    }
+
+    // Route 2: Second best center (Alternative)
+    if (centersWithDistances.length > 1) {
+      const altCenter = centersWithDistances[1];
+      const estimatedHours = Math.max(4, Math.floor(altCenter.distance * 100));
+      
+      routes.push({
+        id: `seattle-resupply-alt1-${Date.now()}`,
+        origin: altCenter.center.location,
+        destination: targetCenter.location,
+        confirmed: false,
+        resources: [
+          { type: 'Emergency Kits', quantity: 12000, unit: 'kits' },
+          { type: 'Water Bottles', quantity: 30000, unit: 'bottles' },
+          { type: 'Food Rations', quantity: 18000, unit: 'packages' }
+        ],
+        estimatedDuration: `${estimatedHours} hours`,
+        priority: 'high',
+        routeType: 'alternative',
+        costEstimate: '$156,000',
+        aiConfidence: 78,
+        advantages: ['Backup capacity', 'Alternative supply chain', 'Diverse inventory'],
+        risks: ['Longer transit time', 'Higher cost']
+      });
+    }
+
+    // Route 3: Third option (Emergency backup)
+    if (centersWithDistances.length > 2) {
+      const backupCenter = centersWithDistances[2];
+      const estimatedHours = Math.max(6, Math.floor(backupCenter.distance * 100));
+      
+      routes.push({
+        id: `seattle-resupply-alt2-${Date.now()}`,
+        origin: backupCenter.center.location,
+        destination: targetCenter.location,
+        confirmed: false,
+        resources: [
+          { type: 'Emergency Kits', quantity: 10000, unit: 'kits' },
+          { type: 'Water Bottles', quantity: 20000, unit: 'bottles' },
+          { type: 'Food Rations', quantity: 25000, unit: 'packages' }
+        ],
+        estimatedDuration: `${estimatedHours} hours`,
+        priority: 'medium',
+        routeType: 'alternative',
+        costEstimate: '$95,000',
+        aiConfidence: 68,
+        advantages: ['Cost effective', 'Emergency backup', 'Large capacity'],
+        risks: ['Longest transit time', 'Lower priority']
+      });
+    }
+
+    console.log(`Generated ${routes.length} route options for Seattle resupply`); // Debug log
+    return routes;
+  };
+
+  const createResupplyRoute = (targetCenter: OperationalCenter) => {
+    // Find Portland center as the supplier
+    const portlandCenter = operationalCenters.find(center => 
+      center.name.toLowerCase().includes('portland') ||
+      center.location.name.toLowerCase().includes('portland')
+    ) || operationalCenters.find(center => 
+      center.name.toLowerCase().includes('san francisco') ||
+      center.location.name.toLowerCase().includes('san francisco')
+    );
+    
+    if (portlandCenter) {
+      const resupplyRoute: Route = {
+        id: `resupply-${Date.now()}`,
+        origin: portlandCenter.location,
+        destination: targetCenter.location,
+        confirmed: true,
+        resources: [
+          { type: 'Emergency Kits', quantity: 15000, unit: 'kits' },
+          { type: 'Water Bottles', quantity: 25000, unit: 'bottles' },
+          { type: 'Food Rations', quantity: 20000, unit: 'packages' }
+        ],
+        estimatedDuration: '6 hours',
+        priority: 'critical'
+      };
+      
+      setRoutes(prev => [...prev, resupplyRoute]);
+      
+      // Create corresponding shipment
+      const resupplyShipment: Shipment = {
+        id: `RESUPPLY-${Date.now()}`,
+        origin: portlandCenter.name,
+        destination: targetCenter.name,
+        status: 'loading',
+        estimatedArrival: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+        logisticsPartner: 'Emergency Response Network',
+        manifest: resupplyRoute.resources.map(resource => ({
+          item: resource.type,
+          quantity: resource.quantity,
+          unit: resource.unit,
+          corporateDonor: 'Inter-Hub Transfer'
+        })),
+        timeline: [
+          {
+            timestamp: new Date().toISOString(),
+            event: 'Emergency resupply initiated - Loading in progress',
+            location: portlandCenter.name
+          }
+        ]
+      };
+      
+      setShipments(prev => [...prev, resupplyShipment]);
+      
+      // Success notification
+      const successNotif: NotificationPopup = {
+        id: `resupply-success-${Date.now()}`,
+        type: 'agentforce',
+        title: 'Auto-Rerouting Successful',
+        message: `Resources being transferred from ${portlandCenter.name} to ${targetCenter.name}`,
+        autoClose: true
+      };
+      setNotifications(prev => [successNotif, ...prev]);
+    }
+  };
+
   // Create new disaster with route recommendations
   const createNewDisaster = () => {
     const disasterCounter = demoDisasterCounter + 1;
@@ -360,15 +697,15 @@ const Dashboard: React.FC = () => {
       severity: 'critical', // Always critical for red urgency indicator
       location,
       affectedPopulation: Math.floor(Math.random() * 500000) + 50000,
-      dateTime: new Date().toISOString(),
-      needs: [
-        {
+        dateTime: new Date().toISOString(),
+        needs: [
+          {
           id: `demo-need-${disasterCounter}-1`,
-          category: 'Water',
-          specificItem: 'Emergency Water Supply',
+            category: 'Water',
+            specificItem: 'Emergency Water Supply',
           quantityRequested: Math.floor(Math.random() * 100000) + 10000,
-          quantityMatched: 0,
-          priority: 'high',
+            quantityMatched: 0,
+            priority: 'high',
           source: 'Local Authorities'
         },
         {
@@ -376,16 +713,16 @@ const Dashboard: React.FC = () => {
           category: 'Medical',
           specificItem: 'Medical Supplies',
           quantityRequested: Math.floor(Math.random() * 50000) + 5000,
-          quantityMatched: 0,
-          priority: 'high',
+            quantityMatched: 0,
+            priority: 'high',
           source: 'Emergency Services'
-        },
-        {
+          },
+          {
           id: `demo-need-${disasterCounter}-3`,
-          category: 'Food',
-          specificItem: 'Emergency Food Rations',
+            category: 'Food',
+            specificItem: 'Emergency Food Rations',
           quantityRequested: Math.floor(Math.random() * 75000) + 8000,
-          quantityMatched: 0,
+            quantityMatched: 0,
           priority: 'medium',
           source: 'Relief Organizations'
         }
@@ -399,21 +736,21 @@ const Dashboard: React.FC = () => {
     setPendingRoutes(prev => [...prev, ...routeOptions]);
     
     // Show notification with route recommendation
-    const notification: NotificationPopup = {
+      const notification: NotificationPopup = {
       id: `disaster-notification-${newDisaster.id}`,
       title: 'New Disaster Detected',
       message: `${newDisaster.name} in ${location.name}. ${newDisaster.affectedPopulation.toLocaleString()} people affected. Multiple route options available.`,
-      type: 'alert',
-      autoClose: false,
-      actions: [
+        type: 'alert',
+        autoClose: false,
+        actions: [
         { id: 'select-route', label: 'Select Route', type: 'approve', primary: true },
         { id: 'view-disaster', label: 'View Disaster Details', type: 'view_route' }
       ],
       routeOptions: routeOptions,
       disasterId: newDisaster.id
-    };
-    
-    setNotifications(prev => [...prev, notification]);
+      };
+
+      setNotifications(prev => [...prev, notification]);
     
     // Update impact metrics
     setImpactMetrics(prev => ({
@@ -424,42 +761,113 @@ const Dashboard: React.FC = () => {
   
   // Handle route approval from notification
   const handleRouteApproval = (routeId: string) => {
-    const route = pendingRoutes.find(r => r.id === routeId);
+    // Check if it's a pending route (disaster response) or a current route option (Seattle resupply)
+    let route = pendingRoutes.find(r => r.id === routeId);
+    let isSeattleResupply = false;
+    
+    // If not in pending routes, check current route options (for Seattle resupply)
+    if (!route) {
+      route = currentRouteOptions.find(r => r.id === routeId);
+      isSeattleResupply = true;
+    }
+    
     if (route) {
       // Confirm the route and add it to active routes
       const confirmedRoute = { ...route, confirmed: true };
       setRoutes(prev => [...prev, confirmedRoute]);
       
-      // Extract disaster counter from route ID to remove all related routes
-      const disasterCounter = routeId.split('-')[2]; // e.g., "demo-route-1-primary" -> "1"
-      
-      // Remove all pending routes for this disaster (primary + alternatives)
-      setPendingRoutes(prev => prev.filter(r => !r.id.includes(`demo-route-${disasterCounter}`)));
-      
-      // Create a shipment for this route
-      const newShipment: Shipment = {
-        id: `DEMO-${Date.now()}`,
-        origin: route.origin.name,
-        destination: route.destination.name,
-        status: 'loading',
-        estimatedArrival: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        logisticsPartner: 'Emergency Response Team',
-        manifest: route.resources.map(resource => ({
-          item: resource.type,
-          quantity: resource.quantity,
-          unit: resource.unit,
-          corporateDonor: 'Emergency Reserve'
-        })),
-        timeline: [
-          {
-            timestamp: new Date().toISOString(),
-            event: 'Route approved - Emergency deployment initiated',
-            location: route.origin.name
-          }
-        ]
-      };
-      
-      setShipments(prev => [...prev, newShipment]);
+      if (isSeattleResupply) {
+        // Handle Seattle resupply route
+        const newShipment: Shipment = {
+          id: `SEATTLE-RESUPPLY-${Date.now()}`,
+          origin: route.origin.name,
+          destination: route.destination.name,
+          status: 'loading',
+          estimatedArrival: new Date(Date.now() + parseInt(route.estimatedDuration) * 60 * 60 * 1000).toISOString(),
+          logisticsPartner: 'Emergency Resource Network',
+          manifest: route.resources.map(resource => ({
+            item: resource.type,
+            quantity: resource.quantity,
+            unit: resource.unit,
+            corporateDonor: 'Inter-Hub Transfer'
+          })),
+          timeline: [
+            {
+              timestamp: new Date().toISOString(),
+              event: `Seattle resupply route approved - Emergency transfer initiated`,
+              location: route.origin.name
+            }
+          ]
+        };
+        
+        setShipments(prev => [...prev, newShipment]);
+        
+        // Clear current route options
+        setCurrentRouteOptions([]);
+        
+        // Show success notification
+        const successNotification: NotificationPopup = {
+          id: `seattle-resupply-approved-${Date.now()}`,
+          title: '✅ Seattle Resupply Route Activated',
+          message: `Emergency resupply from ${route.origin.name} to Seattle approved. Estimated delivery: ${route.estimatedDuration}. Route visible on map.`,
+          type: 'agentforce',
+          autoClose: true
+        };
+        
+        setNotifications(prev => [...prev, successNotification]);
+        
+        setTimeout(() => {
+          setNotifications(prev => prev.filter(n => n.id !== successNotification.id));
+        }, 6000);
+        
+      } else {
+        // Handle regular disaster response route
+        // Extract disaster counter from route ID to remove all related routes
+        const disasterCounter = routeId.split('-')[2]; // e.g., "demo-route-1-primary" -> "1"
+        
+        // Remove all pending routes for this disaster (primary + alternatives)
+        setPendingRoutes(prev => prev.filter(r => !r.id.includes(`demo-route-${disasterCounter}`)));
+        
+        // Create a shipment for this route
+        const newShipment: Shipment = {
+          id: `DEMO-${Date.now()}`,
+          origin: route.origin.name,
+          destination: route.destination.name,
+          status: 'loading',
+          estimatedArrival: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          logisticsPartner: 'Emergency Response Team',
+          manifest: route.resources.map(resource => ({
+            item: resource.type,
+            quantity: resource.quantity,
+            unit: resource.unit,
+            corporateDonor: 'Emergency Reserve'
+          })),
+          timeline: [
+            {
+              timestamp: new Date().toISOString(),
+              event: 'Route approved - Emergency deployment initiated',
+              location: route.origin.name
+            }
+          ]
+        };
+        
+        setShipments(prev => [...prev, newShipment]);
+        
+        // Show success notification
+        const successNotification: NotificationPopup = {
+          id: `route-approved-${Date.now()}`,
+          title: 'Route Approved',
+          message: `Emergency route from ${route.origin.name} to ${route.destination.name} has been activated. Resources are being deployed.`,
+          type: 'agentforce',
+          autoClose: true
+        };
+        
+        setNotifications(prev => [...prev, successNotification]);
+        
+        setTimeout(() => {
+          setNotifications(prev => prev.filter(n => n.id !== successNotification.id));
+        }, 5000);
+      }
       
       // Update impact metrics
       setImpactMetrics(prev => ({
@@ -467,32 +875,23 @@ const Dashboard: React.FC = () => {
         peopleHelped: prev.peopleHelped + Math.floor(Math.random() * 20000) + 10000,
         costSaved: prev.costSaved + Math.floor(Math.random() * 50000) + 25000
       }));
-      
-      // Show success notification
-      const successNotification: NotificationPopup = {
-        id: `route-approved-${Date.now()}`,
-        title: 'Route Approved',
-        message: `Emergency route from ${route.origin.name} to ${route.destination.name} has been activated. Resources are being deployed.`,
-        type: 'agentforce',
-        autoClose: true
-      };
-      
-      setNotifications(prev => [...prev, successNotification]);
-      
-      setTimeout(() => {
-        setNotifications(prev => prev.filter(n => n.id !== successNotification.id));
-      }, 5000);
     }
   };
   
-  // Keyboard event listener for 'D' key
+  // Keyboard event listener for 'D' and 'R' keys
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key.toLowerCase() === 'd' && !event.ctrlKey && !event.metaKey && !event.altKey) {
-        // Only trigger if not typing in an input field
-        const target = event.target as HTMLElement;
-        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable) {
+      // Only trigger if not typing in an input field
+      const target = event.target as HTMLElement;
+      if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable) {
+        
+        if (event.key.toLowerCase() === 'd' && !event.ctrlKey && !event.metaKey && !event.altKey) {
           createNewDisaster();
+        }
+        
+        // NEW: 'R' trigger for resource center crisis and rerouting
+        if (event.key.toLowerCase() === 'r' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+          triggerResourceCrisis();
         }
       }
     };
@@ -732,179 +1131,28 @@ const Dashboard: React.FC = () => {
           )}
 
           {viewMode === 'route-detail' && selectedRoute && (
-            <motion.div
-              className="detail-view"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="detail-header">
-                <button onClick={handleBackToDashboard} className="back-button">
-                  ← Back to Dashboard
-                </button>
-                <h2>Route Details: {selectedRoute.id}</h2>
-              </div>
-
-              <div className="route-detail">
-                <div className="route-summary">
-                  <h3>Route Summary</h3>
-                  <div className="summary-stats">
-                    <div className="stat">
-                      <span className="label">Origin:</span>
-                      <span className="value">{selectedRoute.origin.name}</span>
-                    </div>
-                    <div className="stat">
-                      <span className="label">Destination:</span>
-                      <span className="value">{selectedRoute.destination.name}</span>
-                    </div>
-                    <div className="stat">
-                      <span className="label">Status:</span>
-                      <span className={`value status-${selectedRoute.confirmed ? 'confirmed' : 'pending'}`}>
-                        {selectedRoute.confirmed ? 'Confirmed' : 'Pending'}
-                      </span>
-                    </div>
-                    <div className="stat">
-                      <span className="label">Priority:</span>
-                      <span className={`value priority-${selectedRoute.priority}`}>
-                        {selectedRoute.priority.charAt(0).toUpperCase() + selectedRoute.priority.slice(1)}
-                      </span>
-                    </div>
-                    <div className="stat">
-                      <span className="label">Estimated Duration:</span>
-                      <span className="value">{selectedRoute.estimatedDuration}</span>
-                    </div>
-                    <div className="stat">
-                      <span className="label">Total Resources:</span>
-                      <span className="value">
-                        {selectedRoute.resources.reduce((total, resource) => total + resource.quantity, 0).toLocaleString()} units
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="route-resources">
-                  <h4>Resources Being Transported</h4>
-                  <table className="needs-table">
-                    <thead>
-                      <tr>
-                        <th>Resource Type</th>
-                        <th>Quantity</th>
-                        <th>Unit</th>
-                        <th>Priority</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedRoute.resources.map((resource, index) => (
-                        <tr key={index}>
-                          <td>{resource.type}</td>
-                          <td>{resource.quantity.toLocaleString()}</td>
-                          <td>{resource.unit}</td>
-                          <td>
-                            <span className={`priority priority-${selectedRoute.priority}`}>
-                              {selectedRoute.priority.charAt(0).toUpperCase() + selectedRoute.priority.slice(1)}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="route-coordinates">
-                  <h4>Route Coordinates</h4>
-                  <div className="coordinates-grid">
-                    <div className="coordinate-section">
-                      <h5>Origin</h5>
-                      <div className="coordinate-details">
-                        <p><strong>Location:</strong> {selectedRoute.origin.name}</p>
-                        <p><strong>Latitude:</strong> {selectedRoute.origin.lat.toFixed(4)}°</p>
-                        <p><strong>Longitude:</strong> {selectedRoute.origin.lng.toFixed(4)}°</p>
-                      </div>
-                    </div>
-                    <div className="coordinate-section">
-                      <h5>Destination</h5>
-                      <div className="coordinate-details">
-                        <p><strong>Location:</strong> {selectedRoute.destination.name}</p>
-                        <p><strong>Latitude:</strong> {selectedRoute.destination.lat.toFixed(4)}°</p>
-                        <p><strong>Longitude:</strong> {selectedRoute.destination.lng.toFixed(4)}°</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="route-status">
-                  <h4>Route Status</h4>
-                  <div className="status-indicators">
-                    <div className={`status-indicator ${selectedRoute.confirmed ? 'confirmed' : 'pending'}`}>
-                      <div className="status-icon">
-                        {selectedRoute.confirmed ? '✓' : ''}
-                      </div>
-                      <div className="status-info">
-                        <h5>{selectedRoute.confirmed ? 'Route Confirmed' : 'Route Pending'}</h5>
-                        <p>
-                          {selectedRoute.confirmed 
-                            ? 'This route has been confirmed and is actively being used for resource transportation.'
-                            : 'This route is pending confirmation and may be subject to changes.'
-                          }
-                        </p>
-                      </div>
-                    </div>
-                    <div className={`status-indicator priority-${selectedRoute.priority}`}>
-                      <div className="status-icon">
-                        {selectedRoute.priority === 'critical' ? '' : 
-                         selectedRoute.priority === 'high' ? '' : ''}
-                      </div>
-                      <div className="status-info">
-                        <h5>Priority Level: {selectedRoute.priority.charAt(0).toUpperCase() + selectedRoute.priority.slice(1)}</h5>
-                        <p>
-                          {selectedRoute.priority === 'critical' ? 'This route is critical for emergency response operations.' :
-                           selectedRoute.priority === 'high' ? 'This route is high priority and should be expedited.' :
-                           'This route is standard priority for regular operations.'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="route-timeline">
-                  <h4>Route Timeline</h4>
-                  <div className="timeline-events">
-                    <div className="timeline-event">
-                      <div className="timeline-time">Route Created</div>
-                      <div className="timeline-content">
-                        <div className="event-text">Route {selectedRoute.id} was created</div>
-                        <div className="event-location">Origin: {selectedRoute.origin.name}</div>
-                      </div>
-                    </div>
-                    <div className="timeline-event">
-                      <div className="timeline-time">Status Update</div>
-                      <div className="timeline-content">
-                        <div className="event-text">
-                          Route {selectedRoute.confirmed ? 'confirmed' : 'pending confirmation'}
-                        </div>
-                        <div className="event-location">Priority: {selectedRoute.priority}</div>
-                      </div>
-                    </div>
-                    <div className="timeline-event">
-                      <div className="timeline-time">Resource Loading</div>
-                      <div className="timeline-content">
-                        <div className="event-text">
-                          {selectedRoute.resources.reduce((total, resource) => total + resource.quantity, 0).toLocaleString()} units loaded
-                        </div>
-                        <div className="event-location">Origin: {selectedRoute.origin.name}</div>
-                      </div>
-                    </div>
-                    <div className="timeline-event">
-                      <div className="timeline-time">Estimated Arrival</div>
-                      <div className="timeline-content">
-                        <div className="event-text">Route completion expected</div>
-                        <div className="event-location">Destination: {selectedRoute.destination.name}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <RouteDetailsView
+              route={selectedRoute}
+              onBack={handleBackToDashboard}
+              onConfirmRoute={(routeId) => {
+                setRoutes(prev => prev.map(route => 
+                  route.id === routeId ? { ...route, confirmed: true } : route
+                ));
+                // Add success notification
+                const notification: NotificationPopup = {
+                  id: `route-confirmed-${Date.now()}`,
+                  type: 'agentforce',
+                  title: 'Route Confirmed',
+                  message: `Route ${routeId} has been successfully confirmed and activated`,
+                  autoClose: true
+                };
+                setNotifications(prev => [notification, ...prev]);
+              }}
+              onModifyRoute={(routeId) => {
+                console.log('Modify route:', routeId);
+                // TODO: Implement route modification logic
+              }}
+            />
           )}
         </div>
 
@@ -969,6 +1217,25 @@ const Dashboard: React.FC = () => {
                               const disaster = disasters.find(d => d.id === disasterId);
                               if (disaster) {
                                 handleDisasterClick(disaster);
+                              }
+                            }
+                          }
+                          // Handle Seattle resource crisis route selection
+                          else if (notification.id.startsWith('seattle-resource-crisis-')) {
+                            console.log('Seattle resource crisis notification clicked:', action.id, notification.routeOptions?.length);
+                            if (action.id === 'select-route') {
+                              if (notification.routeOptions) {
+                                setCurrentRouteOptions(notification.routeOptions);
+                                setShowRouteSelectionModal(true);
+                                // Close the notification
+                                setNotifications(prev => prev.filter(n => n.id !== notification.id));
+                              }
+                            } else if (action.id === 'view-alternatives') {
+                              if (notification.routeOptions) {
+                                setCurrentRouteOptions(notification.routeOptions);
+                                setShowRouteSelectionModal(true);
+                                // Close the notification
+                                setNotifications(prev => prev.filter(n => n.id !== notification.id));
                               }
                             }
                           }
@@ -1174,7 +1441,13 @@ const Dashboard: React.FC = () => {
                               <div style={{
                                 fontSize: '0.75rem',
                                 color: '#e2e8f0'
-                              }}>{route.origin.name}</div>
+                              }}>
+                                {/* Find the actual supplier center name */}
+                                {operationalCenters.find(c => 
+                                  c.location.lat === route.origin.lat && 
+                                  c.location.lng === route.origin.lng
+                                )?.name || route.origin.name}
+                              </div>
                             </div>
                             <div style={{
                               color: '#64748b',

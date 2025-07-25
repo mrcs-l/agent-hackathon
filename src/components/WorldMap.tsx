@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Disaster, OperationalCenter, Shipment, Route } from '../types';
 import { Viewer, Cartesian3, Color, Entity, ScreenSpaceEventHandler, ScreenSpaceEventType, CallbackProperty, PolylineGlowMaterialProperty, Math as CesiumMath, Cartesian2, ConstantProperty, ConstantPositionProperty } from 'cesium';
-import { motion, AnimatePresence } from 'framer-motion';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 
 (window as any).CESIUM_BASE_URL = '/cesium';
@@ -18,6 +18,179 @@ interface WorldMapProps {
   onViewNeedsAssessment?: (disasterId: string) => void;
   onViewActiveShipments?: (disasterId?: string) => void;
 }
+
+// Disaster Pop-up Component
+const DisasterPopup: React.FC<{
+  disaster: Disaster;
+  onClose: () => void;
+  onViewNeedsAssessment: () => void;
+  onViewActiveShipments: () => void;
+  position: { x: number; y: number };
+}> = ({ disaster, onClose, onViewNeedsAssessment, onViewActiveShipments, position }) => {
+  const getSeverityIcon = (severity: string) => {
+    switch (severity) {
+      case 'critical': return '🔴';
+      case 'high': return '🟠';
+      case 'medium': return '🟡';
+      case 'low': return '🟢';
+      default: return '⚪';
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'hurricane': return '🌀';
+      case 'earthquake': return '🌍';
+      case 'flood': return '🌊';
+      case 'wildfire': return '🔥';
+      case 'tornado': return '🌪️';
+      default: return '⚠️';
+    }
+  };
+
+  const formatDate = (dateTime: string) => {
+    return new Date(dateTime).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      style={{
+        position: 'absolute',
+        left: position.x + 10,
+        top: position.y - 10,
+        zIndex: 1000,
+        maxWidth: '320px',
+        minWidth: '280px'
+      }}
+      className="disaster-popup"
+    >
+      <div style={{
+        backgroundColor: '#1a1a1a',
+        border: '2px solid #333',
+        borderRadius: '12px',
+        padding: '16px',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(10px)'
+      }}>
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '24px' }}>{getTypeIcon(disaster.type)}</span>
+            <div>
+              <h3 style={{
+                color: '#ffffff',
+                margin: 0,
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }}>
+                {disaster.name}
+              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                <span>{getSeverityIcon(disaster.severity)}</span>
+                <span style={{
+                  color: '#888',
+                  fontSize: '14px',
+                  textTransform: 'capitalize'
+                }}>
+                  {disaster.severity} Severity
+                </span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#888',
+              fontSize: '18px',
+              cursor: 'pointer',
+              padding: '0',
+              width: '24px',
+              height: '24px'
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Details */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ color: '#ccc', fontSize: '14px', marginBottom: '8px' }}>
+            📍 {disaster.location.name}
+          </div>
+          <div style={{ color: '#ccc', fontSize: '14px', marginBottom: '8px' }}>
+            🕒 {formatDate(disaster.dateTime)}
+          </div>
+          <div style={{ color: '#ccc', fontSize: '14px' }}>
+            👥 {disaster.affectedPopulation.toLocaleString()} people affected
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <button
+            onClick={onViewNeedsAssessment}
+            style={{
+              backgroundColor: '#e74c3c',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#c0392b';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#e74c3c';
+            }}
+          >
+            📋 View Needs Assessment
+          </button>
+          <button
+            onClick={onViewActiveShipments}
+            style={{
+              backgroundColor: '#3498db',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#2980b9';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#3498db';
+            }}
+          >
+            🚚 View Active Shipments
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const getSeverityColor = (severity: string) => {
   switch (severity) {
@@ -87,18 +260,12 @@ const WorldMap: React.FC<WorldMapProps> = ({
   onDisasterClick,
   onCenterClick,
   onShipmentClick,
-  onRouteClick,
-  onViewNeedsAssessment,
-  onViewActiveShipments
+  onRouteClick
 }) => {
   const cesiumContainerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
-  
-  // Popup state
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupData, setPopupData] = useState<any>(null);
-  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
-  const [popupType, setPopupType] = useState<'disaster' | 'center' | 'shipment' | 'route'>('disaster');
+  const [selectedDisaster, setSelectedDisaster] = useState<Disaster | null>(null);
+  const [popupPosition, setPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // Helper to convert lat/lng to Cesium Cartesian3
   const toCartesian = (lat: number, lng: number, height = 0) =>
@@ -114,6 +281,37 @@ const WorldMap: React.FC<WorldMapProps> = ({
       points.push(toCartesian(lat, lng, 20000));
     }
     return points;
+  };
+
+  // Helper to calculate inventory level for resource centers
+  const getInventoryLevel = (center: OperationalCenter) => {
+    const totalCurrentInventory = center.inventory.reduce((sum, item) => sum + item.quantity, 0);
+    const inventoryRatio = center.totalItems > 0 ? totalCurrentInventory / center.totalItems : 1;
+    
+    if (inventoryRatio < 0.1) return 'critical';
+    if (inventoryRatio < 0.3) return 'low';
+    return 'normal';
+  };
+
+  // Helper to create square SVG icon for resource centers
+  const createSquareIconSVG = (level: 'normal' | 'low' | 'critical') => {
+    const colors = {
+      normal: '#16a34a', // Green
+      low: '#eab308',    // Yellow  
+      critical: '#dc2626' // Red
+    };
+    
+    const color = colors[level];
+    
+    const svg = `
+      <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" fill="${color}" stroke="white" stroke-width="2" rx="2"/>
+        <rect x="8" y="8" width="8" height="8" fill="white" stroke="${color}" stroke-width="1" rx="1"/>
+        <rect x="10" y="10" width="4" height="4" fill="${color}" rx="0.5"/>
+      </svg>
+    `;
+    
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   };
 
   useEffect(() => {
@@ -173,25 +371,27 @@ const WorldMap: React.FC<WorldMapProps> = ({
       });
     });
 
-    // Operational Centers
+    // Operational Centers (now with square icons - always green)
     operationalCenters.forEach(center => {
+      const squareIcon = createSquareIconSVG('normal'); // Always green
+      
       viewer.entities.add({
         id: `center-${center.id}`,
         position: toCartesian(center.location.lat, center.location.lng, 30000),
-        point: {
-          pixelSize: 14,
-          color: Color.LIME.withAlpha(0.85),
-          outlineColor: Color.DARKGREEN,
-          outlineWidth: 3
+        billboard: {
+          image: squareIcon,
+          width: 24,
+          height: 24,
+          verticalOrigin: 1 // Bottom of the billboard
         },
         label: {
           text: center.name,
           font: '14px sans-serif',
-          fillColor: Color.LIME,
+          fillColor: Color.LIME, // Always green
           outlineColor: Color.BLACK,
           outlineWidth: 2,
           style: 1,
-          pixelOffset: new Cartesian2(0, -24)
+          pixelOffset: new Cartesian2(0, -30)
         },
         properties: {
           type: new ConstantProperty('center'),
@@ -252,7 +452,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
             outlineWidth: 2
           },
           label: {
-            text: `${shipment.id}`,
+            text: `📦 ${shipment.id}`,
             font: '12px sans-serif',
             fillColor: Color.WHITE,
             outlineColor: Color.BLACK,
@@ -271,18 +471,14 @@ const WorldMap: React.FC<WorldMapProps> = ({
     // Routes (great circle)
     routes.forEach(route => {
       const positions = createGreatCircle(route.origin, route.destination, 96);
-      const routeColor = route.confirmed ? Color.BLUE : Color.ORANGE;
-      const routeWidth = route.confirmed ? 4 : 3;
-      const routeAlpha = route.confirmed ? 0.9 : 0.6;
-      
       viewer.entities.add({
         id: `route-${route.id}`,
         polyline: {
           positions,
-          width: routeWidth,
+          width: 3,
           material: new PolylineGlowMaterialProperty({
-            glowPower: route.confirmed ? 0.3 : 0.2,
-            color: routeColor.withAlpha(routeAlpha)
+            glowPower: 0.2,
+            color: Color.BLUE.withAlpha(0.7)
           }),
           clampToGround: false
         },
@@ -291,33 +487,6 @@ const WorldMap: React.FC<WorldMapProps> = ({
           route: new ConstantProperty(route)
         }
       });
-      
-      // Add route markers at origin and destination for confirmed routes
-      if (route.confirmed) {
-        // Origin marker
-        viewer.entities.add({
-          id: `route-origin-${route.id}`,
-          position: toCartesian(route.origin.lat, route.origin.lng, 25000),
-          point: {
-            pixelSize: 8,
-            color: Color.BLUE.withAlpha(0.8),
-            outlineColor: Color.WHITE,
-            outlineWidth: 2
-          }
-        });
-        
-        // Destination marker
-        viewer.entities.add({
-          id: `route-destination-${route.id}`,
-          position: toCartesian(route.destination.lat, route.destination.lng, 25000),
-          point: {
-            pixelSize: 8,
-            color: Color.BLUE.withAlpha(0.8),
-            outlineColor: Color.WHITE,
-            outlineWidth: 2
-          }
-        });
-      }
     });
   }, [disasters, operationalCenters, shipments, routes]);
 
@@ -392,7 +561,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
           
           // Update label to show current status using ConstantProperty
           if (markerEntity.label) {
-            markerEntity.label.text = new ConstantProperty(`${shipment.id} (${shipment.status.replace('_', ' ').toUpperCase()})`);
+            markerEntity.label.text = new ConstantProperty(`📦 ${shipment.id} (${shipment.status.replace('_', ' ').toUpperCase()})`);
           }
         }
       }
@@ -409,263 +578,45 @@ const WorldMap: React.FC<WorldMapProps> = ({
     
     handler.setInputAction((movement: any) => {
       const picked = viewer.scene.pick(movement.position);
+      console.log('Map clicked!', picked); // Debug log
       
       if (picked && picked.id) {
+        console.log('Entity picked:', picked.id); // Debug log
+        console.log('Entity properties:', picked.id.properties); // Debug log
+        
         // Access properties through getValue() method for Cesium entities
         if (picked.id.properties && picked.id.properties.type) {
           const entityType = picked.id.properties.type.getValue();
-          
-          // Set popup position based on click location
-          const clickPosition = {
-            x: movement.position.x,
-            y: movement.position.y
-          };
+          console.log('Entity type:', entityType); // Debug log
           
           if (entityType === 'disaster' && picked.id.properties.disaster) {
             const disaster = picked.id.properties.disaster.getValue();
-            setPopupData(disaster);
-            setPopupType('disaster');
-            setPopupPosition(clickPosition);
-            setShowPopup(true);
+            console.log('Disaster clicked:', disaster); // Debug log
+            setSelectedDisaster(disaster);
+            setPopupPosition({ x: movement.position.x, y: movement.position.y });
           } else if (entityType === 'center' && picked.id.properties.center) {
             const center = picked.id.properties.center.getValue();
-            setPopupData(center);
-            setPopupType('center');
-            setPopupPosition(clickPosition);
-            setShowPopup(true);
+            console.log('Center clicked:', center); // Debug log
+            onCenterClick(center);
           } else if (entityType === 'shipment' && picked.id.properties.shipment) {
             const shipment = picked.id.properties.shipment.getValue();
-            setPopupData(shipment);
-            setPopupType('shipment');
-            setPopupPosition(clickPosition);
-            setShowPopup(true);
+            console.log('Shipment clicked:', shipment); // Debug log
+            onShipmentClick(shipment);
           } else if (entityType === 'route' && picked.id.properties.route) {
             const route = picked.id.properties.route.getValue();
-            setPopupData(route);
-            setPopupType('route');
-            setPopupPosition(clickPosition);
-            setShowPopup(true);
+            console.log('Route clicked:', route); // Debug log
+            onRouteClick(route);
           }
         }
       } else {
-        // Click on empty space - close popup
-        setShowPopup(false);
+        console.log('No entity picked'); // Debug log
+        // Click on empty space - close pop-up
+        setSelectedDisaster(null);
       }
     }, ScreenSpaceEventType.LEFT_CLICK);
     
     return () => handler.destroy();
-  }, [onDisasterClick, onCenterClick, onShipmentClick, onRouteClick, onViewNeedsAssessment, onViewActiveShipments]);
-
-  const renderPopupContent = () => {
-    if (!popupData) return null;
-    
-    switch (popupType) {
-      case 'disaster':
-        const disaster = popupData as Disaster;
-        const totalNeeded = disaster.needs.reduce((sum, need) => sum + need.quantityRequested, 0);
-        const totalMatched = disaster.needs.reduce((sum, need) => sum + need.quantityMatched, 0);
-        const matchPercentage = totalNeeded > 0 ? ((totalMatched / totalNeeded) * 100).toFixed(1) : '0';
-        return (
-          <div className="map-popup disaster-popup" style={{
-            background: 'rgba(20,24,36,0.92)',
-            color: '#e2e8f0',
-            padding: '1.1rem 1.3rem',
-            borderRadius: '12px',
-            minWidth: 220,
-            fontSize: 15,
-            fontFamily: 'system-ui, sans-serif',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.25)'
-          }}>
-            <div className="popup-header">
-              <h4 style={{margin: 0, fontWeight: 700, fontSize: '1.15em'}}>{disaster.name}</h4>
-              <span className={`severity-badge ${disaster.severity}`} style={{marginLeft: 8, fontWeight: 600, color: '#facc15'}}>{disaster.severity.toUpperCase()}</span>
-            </div>
-            <div className="popup-content">
-              <div className="popup-stat"><span className="stat-label">Location:</span> <span className="stat-value">{disaster.location.name}</span></div>
-              <div className="popup-stat"><span className="stat-label">Affected Population:</span> <span className="stat-value">{disaster.affectedPopulation.toLocaleString()}</span></div>
-              <div className="popup-stat"><span className="stat-label">Needs Matched:</span> <span className="stat-value">{matchPercentage}%</span></div>
-              <div className="popup-stat"><span className="stat-label">Critical Needs:</span> <span className="stat-value">{disaster.needs.filter(n => n.priority === 'high').length}</span></div>
-            </div>
-            <div className="popup-actions" style={{marginTop: '0.8em'}}>
-              <button 
-                className="popup-btn primary"
-                style={{background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 5, padding: '0.4em 0.8em', fontSize: '0.95em', cursor: 'pointer'}} 
-                onClick={() => {
-                  onViewNeedsAssessment?.(disaster.id);
-                  setShowPopup(false);
-                }}
-              >
-                View Needs Assessment
-              </button>
-              <button
-                className="popup-btn secondary"
-                style={{background: '#10b981', color: '#fff', border: 'none', borderRadius: 5, padding: '0.4em 0.8em', fontSize: '0.95em', cursor: 'pointer', marginLeft: 8}}
-                onClick={() => {
-                  onViewActiveShipments?.(disaster.id);
-                  setShowPopup(false);
-                }}
-              >
-                View Active Shipments
-              </button>
-            </div>
-          </div>
-        );
-        
-      case 'center':
-        const center = popupData as OperationalCenter;
-        return (
-          <div className="map-popup center-popup" style={{
-            background: 'rgba(20,24,36,0.92)',
-            color: '#e2e8f0',
-            padding: '1.1rem 1.3rem',
-            borderRadius: '12px',
-            minWidth: 220,
-            fontSize: 15,
-            fontFamily: 'system-ui, sans-serif',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.25)'
-          }}>
-            <div className="popup-header">
-              <h4 style={{margin: 0, fontWeight: 700, fontSize: '1.15em'}}>{center.name}</h4>
-              <span className={`status-badge ${center.inventoryStatus}`} style={{marginLeft: 8, fontWeight: 600, color: '#a3e635'}}>{center.inventoryStatus.toUpperCase()}</span>
-            </div>
-            <div className="popup-content">
-              <div className="popup-stat"><span className="stat-label">Location:</span> <span className="stat-value">{center.location.name}</span></div>
-              <div className="popup-stat"><span className="stat-label">Total Items:</span> <span className="stat-value">{center.totalItems.toLocaleString()}</span></div>
-              <div className="popup-stat"><span className="stat-label">Categories:</span> <span className="stat-value">{center.totalCategories}</span></div>
-              <div className="popup-stat"><span className="stat-label">Inventory Value:</span> <span className="stat-value">${(center.inventoryValue / 1000000).toFixed(1)}M</span></div>
-            </div>
-            <div className="popup-actions" style={{marginTop: '0.8em'}}>
-              <button 
-                className="popup-btn primary"
-                style={{background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 5, padding: '0.4em 0.8em', fontSize: '0.95em', cursor: 'pointer'}} 
-                onClick={() => {
-                  onCenterClick(center);
-                  setShowPopup(false);
-                }}
-              >
-                View Inventory Details
-              </button>
-            </div>
-          </div>
-        );
-        
-      case 'shipment':
-        const shipment = popupData as Shipment;
-        const statusColors = {
-          loading: '#ff9500',
-          in_transit: '#00ff00',
-          delayed: '#ffff00',
-          delivered: '#00cc00',
-          exception: '#ff0000'
-        };
-        
-        return (
-          <div className="map-popup shipment-popup" style={{
-            background: 'rgba(20,24,36,0.92)',
-            color: '#e2e8f0',
-            padding: '1.1rem 1.3rem',
-            borderRadius: '12px',
-            minWidth: 220,
-            fontSize: 15,
-            fontFamily: 'system-ui, sans-serif',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.25)'
-          }}>
-            <div className="popup-header">
-              <h4>Shipment {shipment.id}</h4>
-              <span 
-                className="status-badge"
-                style={{ backgroundColor: statusColors[shipment.status], color: '#000' }}
-              >
-                {shipment.status.replace('_', ' ').toUpperCase()}
-              </span>
-            </div>
-            <div className="popup-content">
-              <div className="popup-stat">
-                <span className="stat-label">Origin:</span>
-                <span className="stat-value">{shipment.origin}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Destination:</span>
-                <span className="stat-value">{shipment.destination}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Items:</span>
-                <span className="stat-value">{shipment.manifest.length} types</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Partner:</span>
-                <span className="stat-value">{shipment.logisticsPartner}</span>
-              </div>
-            </div>
-            <div className="popup-actions">
-              <button 
-                className="popup-btn primary"
-                onClick={() => {
-                  onShipmentClick(shipment);
-                  setShowPopup(false);
-                }}
-              >
-                📍 Track Shipment Details
-              </button>
-            </div>
-          </div>
-        );
-        
-      case 'route':
-        const route = popupData as Route;
-        const totalResources = route.resources.reduce((sum, resource) => sum + resource.quantity, 0);
-        
-        return (
-          <div className="map-popup route-popup" style={{
-            background: 'rgba(20,24,36,0.92)',
-            color: '#e2e8f0',
-            padding: '1.1rem 1.3rem',
-            borderRadius: '12px',
-            minWidth: 220,
-            fontSize: 15,
-            fontFamily: 'system-ui, sans-serif',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.25)'
-          }}>
-            <div className="popup-header">
-              <h4>Route {route.id}</h4>
-              <span className={`priority-badge ${route.priority}`}>{route.priority.toUpperCase()}</span>
-            </div>
-            <div className="popup-content">
-              <div className="popup-stat">
-                <span className="stat-label">Origin:</span>
-                <span className="stat-value">{route.origin.name}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Destination:</span>
-                <span className="stat-value">{route.destination.name}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Status:</span>
-                <span className="stat-value">{route.confirmed ? 'Confirmed' : 'Pending'}</span>
-              </div>
-              <div className="popup-stat">
-                <span className="stat-label">Resources:</span>
-                <span className="stat-value">{totalResources.toLocaleString()} units</span>
-              </div>
-            </div>
-            <div className="popup-actions">
-              <button 
-                className="popup-btn primary"
-                onClick={() => {
-                  onRouteClick(route);
-                  setShowPopup(false);
-                }}
-              >
-                View Route Details
-              </button>
-            </div>
-          </div>
-        );
-        
-      default:
-        return null;
-    }
-  };
+  }, [onDisasterClick, onCenterClick, onShipmentClick, onRouteClick]);
 
   return (
     <div
@@ -688,55 +639,23 @@ const WorldMap: React.FC<WorldMapProps> = ({
           left: 0
         }}
       />
-      
-      {/* Interactive Popup System */}
-      <AnimatePresence>
-        {showPopup && popupData && (
-          <motion.div
-            className="map-popup-container"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-            style={{
-              position: 'absolute',
-              left: Math.min(popupPosition.x + 10, window.innerWidth - 350),
-              top: Math.max(popupPosition.y - 10, 10),
-              zIndex: 1000,
-              pointerEvents: 'auto'
-            }}
-          >
-            <div style={{ position: 'relative' }}>
-              <button 
-                className="popup-close"
-                onClick={() => setShowPopup(false)}
-                style={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  width: 28,
-                  height: 28,
-                  background: '#dc2626',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '50%',
-                  fontSize: '1.2em',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                }}
-                aria-label="Close popup"
-              >
-                ×
-              </button>
-              {renderPopupContent()}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <AnimatePresence>
+          {selectedDisaster && (
+            <DisasterPopup
+              disaster={selectedDisaster}
+              onClose={() => setSelectedDisaster(null)}
+              onViewNeedsAssessment={() => {
+                onDisasterClick(selectedDisaster);
+                setSelectedDisaster(null);
+              }}
+              onViewActiveShipments={() => {
+                // For now, just close the popup - could be enhanced to filter shipments
+                setSelectedDisaster(null);
+              }}
+              position={popupPosition}
+            />
+          )}
+        </AnimatePresence>
     </div>
   );
 };

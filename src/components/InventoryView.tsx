@@ -115,7 +115,6 @@ const InventoryView: React.FC<InventoryViewProps> = ({
   const conditions = Array.from(new Set(inventory.map(item => item.condition)));
 
   const getInventoryLevelWarning = (quantity: number, productType: string) => {
-    // Define warning thresholds
     const thresholds: { [key: string]: number } = {
       'Water': 10000,
       'Food': 8000,
@@ -140,6 +139,17 @@ const InventoryView: React.FC<InventoryViewProps> = ({
       case 'good': return '#16a34a';
       default: return '#6b7280';
     }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    const icons = {
+      'Water': '💧',
+      'Food': '🍽️',
+      'Medical': '🏥',
+      'Shelter': '⛺',
+      'Tools': '🔧'
+    };
+    return icons[category as keyof typeof icons] || '📦';
   };
 
   const handleSort = (field: typeof sortBy) => {
@@ -183,25 +193,42 @@ const InventoryView: React.FC<InventoryViewProps> = ({
     setShowShipmentModal(false);
   };
 
+  const totalQuantity = inventory.reduce((sum, item) => sum + item.quantity, 0);
+  const selectedQuantity = inventory
+    .filter(item => selectedItems.includes(item.id))
+    .reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <motion.div
       className="inventory-view"
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
+      style={{
+        height: '100%',
+        overflow: 'auto',
+        background: '#1e293b'
+      }}
     >
+      {/* Header Section */}
       <div className="detail-header">
         <button onClick={onBack} className="back-button">
           ← Back to Dashboard
         </button>
-        <h2> Inventory Management: {center.name}</h2>
+        <h2>📦 Inventory Management: {center.name}</h2>
       </div>
 
-      <div className="inventory-summary">
-        <div className="summary-stats">
+      {/* Summary Dashboard */}
+      <div style={{ padding: '2rem' }}>
+        <div className="summary-stats" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
           <div className="stat">
             <span className="label">Total Items:</span>
-            <span className="value">{inventory.reduce((sum, item) => sum + item.quantity, 0).toLocaleString()}</span>
+            <span className="value">{totalQuantity.toLocaleString()}</span>
           </div>
           <div className="stat">
             <span className="label">Categories:</span>
@@ -218,90 +245,153 @@ const InventoryView: React.FC<InventoryViewProps> = ({
             </span>
           </div>
         </div>
-      </div>
 
-      <div className="inventory-controls">
-        <div className="search-filter-section">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder=" Search items, categories, or partners..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
+        {/* Controls Section */}
+        <div style={{
+          background: '#0f172a',
+          border: '1px solid #334155',
+          borderRadius: '8px',
+          padding: '1.5rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr auto',
+            gap: '1rem',
+            alignItems: 'end'
+          }}>
+            {/* Search and Filters */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '2fr 1fr 1fr',
+              gap: '1rem',
+              alignItems: 'end'
+            }}>
+              <div className="form-group">
+                <label>🔍 Search Items</label>
+                <input
+                  type="text"
+                  placeholder="Search items, categories, or partners..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Category</label>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                >
+                  <option value="">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {getCategoryIcon(category)} {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label>Condition</label>
+                <select
+                  value={filterCondition}
+                  onChange={(e) => setFilterCondition(e.target.value)}
+                >
+                  <option value="">All Conditions</option>
+                  {conditions.map(condition => (
+                    <option key={condition} value={condition}>
+                      {condition.charAt(0).toUpperCase() + condition.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <motion.button
+                onClick={() => setShowAddModal(true)}
+                className="action-button primary"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                ➕ Add Item
+              </motion.button>
+              
+              <motion.button
+                onClick={() => setShowShipmentModal(true)}
+                disabled={selectedItems.length === 0}
+                className={`action-button ${selectedItems.length === 0 ? 'secondary' : 'primary'}`}
+                whileHover={{ scale: selectedItems.length > 0 ? 1.05 : 1 }}
+                whileTap={{ scale: selectedItems.length > 0 ? 0.95 : 1 }}
+                style={{ 
+                  whiteSpace: 'nowrap',
+                  opacity: selectedItems.length === 0 ? 0.5 : 1
+                }}
+              >
+                🚛 Ship ({selectedItems.length})
+              </motion.button>
+            </div>
           </div>
-          
-          <div className="filters">
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Categories</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-            
-            <select
-              value={filterCondition}
-              onChange={(e) => setFilterCondition(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Conditions</option>
-              {conditions.map(condition => (
-                <option key={condition} value={condition}>{condition.charAt(0).toUpperCase() + condition.slice(1)}</option>
-              ))}
-            </select>
+
+          {/* Results Summary */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '1rem',
+            paddingTop: '1rem',
+            borderTop: '1px solid #334155',
+            fontSize: '0.875rem',
+            color: '#94a3b8'
+          }}>
+            <span>
+              {filteredAndSortedInventory.length} items found
+              {selectedItems.length > 0 && (
+                <span style={{ color: '#3b82f6', marginLeft: '1rem' }}>
+                  {selectedQuantity.toLocaleString()} units selected
+                </span>
+              )}
+            </span>
+            {selectedItems.length > 0 && (
+              <button
+                onClick={() => setSelectedItems([])}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#3b82f6',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem'
+                }}
+              >
+                Clear Selection
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="action-buttons">
-          <motion.button
-            onClick={() => setShowAddModal(true)}
-            className="action-btn add-inventory"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-             Add New Inventory
-          </motion.button>
-          
-          <motion.button
-            onClick={() => setShowShipmentModal(true)}
-            disabled={selectedItems.length === 0}
-            className={`action-btn initiate-shipment ${selectedItems.length === 0 ? 'disabled' : ''}`}
-            whileHover={{ scale: selectedItems.length > 0 ? 1.05 : 1 }}
-            whileTap={{ scale: selectedItems.length > 0 ? 0.95 : 1 }}
-          >
-             Initiate Shipment ({selectedItems.length})
-          </motion.button>
-        </div>
-      </div>
-
-      <div className="inventory-table-container">
-        <div className="table-controls">
-          <span className="results-count">
-            {filteredAndSortedInventory.length} items found
-          </span>
-          {selectedItems.length > 0 && (
-            <button
-              onClick={() => setSelectedItems([])}
-              className="clear-selection"
-            >
-              Clear Selection
-            </button>
-          )}
-        </div>
-
+        {/* Inventory Table */}
         <div className="table-wrapper">
-          <table className="inventory-table">
+          <table style={{
+            width: '100%',
+            background: '#0f172a',
+            borderCollapse: 'collapse',
+            fontSize: '0.875rem'
+          }}>
             <thead>
-              <tr>
-                <th>
+              <tr style={{ borderBottom: '1px solid #334155' }}>
+                <th style={{ 
+                  padding: '1rem 0.75rem', 
+                  textAlign: 'left',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  fontWeight: '600'
+                }}>
                   <input
                     type="checkbox"
-                    checked={selectedItems.length === filteredAndSortedInventory.length}
+                    checked={selectedItems.length === filteredAndSortedInventory.length && filteredAndSortedInventory.length > 0}
                     onChange={(e) => {
                       if (e.target.checked) {
                         setSelectedItems(filteredAndSortedInventory.map(item => item.id));
@@ -313,70 +403,187 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                 </th>
                 <th 
                   onClick={() => handleSort('productType')}
-                  className="sortable"
+                  style={{ 
+                    padding: '1rem 0.75rem', 
+                    textAlign: 'left',
+                    background: '#1e293b',
+                    color: '#e2e8f0',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
                 >
                   Category {sortBy === 'productType' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th>Item</th>
+                <th style={{ 
+                  padding: '1rem 0.75rem', 
+                  textAlign: 'left',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  fontWeight: '600'
+                }}>Item</th>
                 <th 
                   onClick={() => handleSort('quantity')}
-                  className="sortable"
+                  style={{ 
+                    padding: '1rem 0.75rem', 
+                    textAlign: 'left',
+                    background: '#1e293b',
+                    color: '#e2e8f0',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
                 >
                   Quantity {sortBy === 'quantity' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th>Corporate Partner</th>
+                <th style={{ 
+                  padding: '1rem 0.75rem', 
+                  textAlign: 'left',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  fontWeight: '600'
+                }}>Corporate Partner</th>
                 <th 
                   onClick={() => handleSort('dateReceived')}
-                  className="sortable"
+                  style={{ 
+                    padding: '1rem 0.75rem', 
+                    textAlign: 'left',
+                    background: '#1e293b',
+                    color: '#e2e8f0',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
                 >
                   Date Received {sortBy === 'dateReceived' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
-                <th>Location</th>
-                <th>Condition</th>
-                <th>Status</th>
+                <th style={{ 
+                  padding: '1rem 0.75rem', 
+                  textAlign: 'left',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  fontWeight: '600'
+                }}>Location</th>
+                <th style={{ 
+                  padding: '1rem 0.75rem', 
+                  textAlign: 'left',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  fontWeight: '600'
+                }}>Condition</th>
+                <th style={{ 
+                  padding: '1rem 0.75rem', 
+                  textAlign: 'left',
+                  background: '#1e293b',
+                  color: '#e2e8f0',
+                  fontWeight: '600'
+                }}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {filteredAndSortedInventory.map((item) => {
+              {filteredAndSortedInventory.map((item, index) => {
                 const warningLevel = getInventoryLevelWarning(item.quantity, item.productType);
+                const isSelected = selectedItems.includes(item.id);
                 return (
-                  <tr key={item.id} className={selectedItems.includes(item.id) ? 'selected' : ''}>
-                    <td>
+                  <tr 
+                    key={item.id}
+                    style={{
+                      borderBottom: '1px solid #334155',
+                      background: isSelected ? '#1e293b' : 'transparent',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => toggleItemSelection(item.id)}
+                  >
+                    <td style={{ padding: '0.75rem', verticalAlign: 'middle' }}>
                       <input
                         type="checkbox"
-                        checked={selectedItems.includes(item.id)}
+                        checked={isSelected}
                         onChange={() => toggleItemSelection(item.id)}
+                        onClick={(e) => e.stopPropagation()}
                       />
                     </td>
-                    <td>{item.productType}</td>
-                    <td>{item.specificItem}</td>
-                    <td>
-                      <div className="quantity-cell">
-                        <span className="quantity-value">{item.quantity.toLocaleString()}</span>
+                    <td style={{ 
+                      padding: '0.75rem', 
+                      color: '#e2e8f0',
+                      verticalAlign: 'middle'
+                    }}>
+                      <span style={{ marginRight: '0.5rem' }}>
+                        {getCategoryIcon(item.productType)}
+                      </span>
+                      {item.productType}
+                    </td>
+                    <td style={{ 
+                      padding: '0.75rem', 
+                      color: '#e2e8f0',
+                      verticalAlign: 'middle'
+                    }}>{item.specificItem}</td>
+                    <td style={{ 
+                      padding: '0.75rem', 
+                      verticalAlign: 'middle'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ 
+                          color: '#e2e8f0',
+                          fontWeight: '600'
+                        }}>
+                          {item.quantity.toLocaleString()}
+                        </span>
                         <div 
-                          className={`warning-indicator ${warningLevel}`}
-                          style={{ backgroundColor: getWarningColor(warningLevel) }}
+                          style={{
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            backgroundColor: getWarningColor(warningLevel)
+                          }}
                           title={`Inventory level: ${warningLevel}`}
-                        ></div>
+                        />
                       </div>
                     </td>
-                    <td>{item.corporatePartner}</td>
-                    <td>{new Date(item.dateReceived).toLocaleDateString()}</td>
-                    <td>{item.location}</td>
-                    <td>
-                      <span className={`condition-badge condition-${item.condition}`}>
+                    <td style={{ 
+                      padding: '0.75rem', 
+                      color: '#94a3b8',
+                      verticalAlign: 'middle'
+                    }}>{item.corporatePartner}</td>
+                    <td style={{ 
+                      padding: '0.75rem', 
+                      color: '#94a3b8',
+                      verticalAlign: 'middle'
+                    }}>{new Date(item.dateReceived).toLocaleDateString()}</td>
+                    <td style={{ 
+                      padding: '0.75rem', 
+                      color: '#94a3b8',
+                      verticalAlign: 'middle'
+                    }}>{item.location}</td>
+                    <td style={{ 
+                      padding: '0.75rem',
+                      verticalAlign: 'middle'
+                    }}>
+                      <span style={{
+                        background: item.condition === 'new' ? '#dcfce7' : 
+                                   item.condition === 'good' ? '#fef3c7' : '#fed7d7',
+                        color: item.condition === 'new' ? '#16a34a' : 
+                               item.condition === 'good' ? '#d97706' : '#dc2626',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        fontWeight: '500'
+                      }}>
                         {item.condition.charAt(0).toUpperCase() + item.condition.slice(1)}
                       </span>
                     </td>
-                    <td>
-                      <span 
-                        className={`status-indicator ${warningLevel}`}
-                        style={{ color: getWarningColor(warningLevel) }}
-                      >
-                        {warningLevel === 'critical' && ' Critical'}
-                        {warningLevel === 'low' && ' Low'}
-                        {warningLevel === 'moderate' && ' Moderate'}
-                        {warningLevel === 'good' && ' Good'}
+                    <td style={{ 
+                      padding: '0.75rem',
+                      verticalAlign: 'middle'
+                    }}>
+                      <span style={{
+                        color: getWarningColor(warningLevel),
+                        fontWeight: '500',
+                        fontSize: '0.75rem'
+                      }}>
+                        {warningLevel === 'critical' && '🔴 Critical'}
+                        {warningLevel === 'low' && '🟡 Low'}
+                        {warningLevel === 'moderate' && '🟠 Moderate'}
+                        {warningLevel === 'good' && '🟢 Good'}
                       </span>
                     </td>
                   </tr>
@@ -404,7 +611,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
             >
-              <h3> Add New Inventory Item</h3>
+              <h3>📦 Add New Inventory Item</h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target as HTMLFormElement);
@@ -419,34 +626,34 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               }}>
                 <div className="form-grid">
                   <div className="form-group">
-                    <label>Category:</label>
+                    <label>Category</label>
                     <select name="productType" required>
                       <option value="">Select Category</option>
-                      <option value="Water">Water</option>
-                      <option value="Food">Food</option>
-                      <option value="Medical">Medical</option>
-                      <option value="Shelter">Shelter</option>
-                      <option value="Tools">Tools</option>
+                      <option value="Water">💧 Water</option>
+                      <option value="Food">🍽️ Food</option>
+                      <option value="Medical">🏥 Medical</option>
+                      <option value="Shelter">⛺ Shelter</option>
+                      <option value="Tools">🔧 Tools</option>
                     </select>
                   </div>
                   <div className="form-group">
-                    <label>Specific Item:</label>
+                    <label>Specific Item</label>
                     <input name="specificItem" type="text" required placeholder="e.g., Emergency Water Bottles" />
                   </div>
                   <div className="form-group">
-                    <label>Quantity:</label>
+                    <label>Quantity</label>
                     <input name="quantity" type="number" required min="1" />
                   </div>
                   <div className="form-group">
-                    <label>Corporate Partner:</label>
+                    <label>Corporate Partner</label>
                     <input name="corporatePartner" type="text" required placeholder="e.g., Coca-Cola" />
                   </div>
                   <div className="form-group">
-                    <label>Storage Location:</label>
+                    <label>Storage Location</label>
                     <input name="location" type="text" required placeholder="e.g., Warehouse A" />
                   </div>
                   <div className="form-group">
-                    <label>Condition:</label>
+                    <label>Condition</label>
                     <select name="condition" required>
                       <option value="new">New</option>
                       <option value="good">Good</option>
@@ -482,51 +689,86 @@ const InventoryView: React.FC<InventoryViewProps> = ({
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               onClick={e => e.stopPropagation()}
+              style={{ maxWidth: '600px' }}
             >
-              <h3> Initiate Emergency Shipment</h3>
-              <div className="shipment-summary">
-                <p>Selected {selectedItems.length} items for shipment:</p>
-                <div className="selected-items">
+              <h3>🚛 Initiate Emergency Shipment</h3>
+              
+              <div style={{
+                background: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '8px',
+                padding: '1rem',
+                marginBottom: '1.5rem'
+              }}>
+                <p style={{ 
+                  color: '#e2e8f0', 
+                  fontWeight: '600',
+                  marginBottom: '1rem' 
+                }}>
+                  Selected {selectedItems.length} items for shipment:
+                </p>
+                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
                   {inventory
                     .filter(item => selectedItems.includes(item.id))
                     .map(item => (
-                      <div key={item.id} className="selected-item">
-                        <span>{item.specificItem}</span>
-                        <span className="quantity">{item.quantity.toLocaleString()}</span>
+                      <div 
+                        key={item.id} 
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '0.5rem',
+                          borderBottom: '1px solid #334155',
+                          fontSize: '0.875rem'
+                        }}
+                      >
+                        <div style={{ color: '#e2e8f0' }}>
+                          <span style={{ marginRight: '0.5rem' }}>
+                            {getCategoryIcon(item.productType)}
+                          </span>
+                          {item.specificItem}
+                        </div>
+                        <span style={{ 
+                          color: '#3b82f6',
+                          fontWeight: '600'
+                        }}>
+                          {item.quantity.toLocaleString()}
+                        </span>
                       </div>
                     ))}
                 </div>
               </div>
-              <div className="shipment-form">
+
+              <div className="form-grid">
                 <div className="form-group">
-                  <label>Destination:</label>
+                  <label>Destination</label>
                   <select required>
                     <option value="">Select Disaster Zone</option>
-                    <option value="typhoon-genesis">Typhoon Genesis - Philippines</option>
-                    <option value="earthquake-turkey">Earthquake - Turkey</option>
-                    <option value="flood-pakistan">Flooding - Pakistan</option>
+                    <option value="typhoon-genesis">🌪️ Typhoon Genesis - Philippines</option>
+                    <option value="earthquake-turkey">🏔️ Earthquake - Turkey</option>
+                    <option value="flood-pakistan">🌊 Flooding - Pakistan</option>
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Priority:</label>
+                  <label>Priority</label>
                   <select required>
-                    <option value="critical">Critical - Emergency Response</option>
-                    <option value="high">High - Urgent Need</option>
-                    <option value="medium">Medium - Standard</option>
+                    <option value="critical">🔴 Critical - Emergency Response</option>
+                    <option value="high">🟡 High - Urgent Need</option>
+                    <option value="medium">🟢 Medium - Standard</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>Logistics Partner:</label>
+                <div className="form-group full-width">
+                  <label>Logistics Partner</label>
                   <select required>
-                    <option value="fedex">FedEx Logistics</option>
-                    <option value="ups">UPS Supply Chain</option>
-                    <option value="dhl">DHL Express</option>
+                    <option value="fedex">📦 FedEx Logistics</option>
+                    <option value="ups">🚛 UPS Supply Chain</option>
+                    <option value="dhl">✈️ DHL Express</option>
                   </select>
                 </div>
               </div>
               <div className="form-actions">
                 <button onClick={handleInitiateShipment} className="submit-btn">
-                   Initiate Shipment
+                  🚛 Initiate Shipment
                 </button>
                 <button onClick={() => setShowShipmentModal(false)} className="cancel-btn">
                   Cancel

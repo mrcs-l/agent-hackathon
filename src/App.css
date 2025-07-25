@@ -51,9 +51,10 @@ body {
 }
 
 .dashboard-header {
-  background: #1e293b;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   color: #e2e8f0;
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   border-bottom: 1px solid #334155;
 }
 
@@ -64,15 +65,14 @@ body {
 }
 
 .header-content h1 {
-  font-size: 1.125rem;
-  font-weight: 500;
-  letter-spacing: -0.025em;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
 .header-content h1 .command-text {
   font-family: "Armstrong";
   font-weight: normal;
-  font-size: 1.125rem;
+  font-size: 1.3rem;
 }
 
 .status-indicators {
@@ -119,6 +119,7 @@ body {
 .sidebar {
   background: #1e293b;
   border-right: 1px solid #334155;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
   /* Custom Scrollbar */
   scrollbar-width: thin; /* Firefox */
@@ -192,9 +193,9 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem;
+  padding: 1rem;
   background: #0f172a;
-  border-radius: 4px;
+  border-radius: 8px;
   border: 1px solid #334155;
 }
 
@@ -307,15 +308,13 @@ body {
 
 .action-button {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   margin-bottom: 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  transition: all 0.2s;
 }
 
 .action-button.primary {
@@ -353,7 +352,8 @@ body {
 .world-map {
   height: 100%;
   background: #1e293b;
-  border-radius: 4px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   position: relative;
   border: 1px solid #334155;
@@ -703,6 +703,7 @@ body {
 .alerts-panel {
   background: #1e293b;
   border-left: 1px solid #334155;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #475569 transparent; /* Firefox */
@@ -794,11 +795,11 @@ body {
 
 .alert-item {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-  transition: all 0.15s;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s;
 }
 
 .alert-item.urgent {
@@ -2917,20 +2918,77 @@ body {
   animation: entity-update 0.5s ease-in-out;
 }
 
-.stat-number {
-  color: #fff !important;
+/* Icon styling for enhanced components */
+.status-icon, .event-icon {
+  margin-right: 8px;
+  font-size: 1.1em;
 }
 
-.metric-value {
-  color: #fff !important;
+.event-icon {
+  margin-right: 6px;
+  opacity: 0.8;
 }
 
-/* If there are other number classes, ensure they are white too */
-.stat .value {
-  color: #fff !important;
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Optionally, make the impact metric numbers white */
-.live-impact-metrics .metric-value {
-  color: #fff !important;
+/* Resource center inventory level indicators */
+.inventory-level-normal {
+  color: #16a34a;
+}
+
+.inventory-level-low {
+  color: #eab308;
+}
+
+.inventory-level-critical {
+  color: #dc2626;
+  animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Enhanced inventory management styling */
+.inventory-warning-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.inventory-warning-badge.critical {
+  background: rgba(220, 38, 38, 0.2);
+  color: #fca5a5;
+  border: 1px solid #dc2626;
+}
+
+.inventory-warning-badge.low {
+  background: rgba(234, 179, 8, 0.2);
+  color: #fde047;
+  border: 1px solid #eab308;
+}
+
+.inventory-warning-badge.moderate {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+  border: 1px solid #22c55e;
+}
+
+.inventory-warning-badge.good {
+  background: rgba(22, 163, 74, 0.2);
+  color: #bbf7d0;
+  border: 1px solid #16a34a;
 }
