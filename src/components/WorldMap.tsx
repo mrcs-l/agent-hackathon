@@ -263,7 +263,9 @@ const WorldMap: React.FC<WorldMapProps> = ({
   onDisasterClick,
   onCenterClick,
   onShipmentClick,
-  onRouteClick
+  onRouteClick,
+  onViewNeedsAssessment,
+  onViewActiveShipments
 }) => {
   const cesiumContainerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
@@ -652,7 +654,9 @@ const WorldMap: React.FC<WorldMapProps> = ({
                 setSelectedDisaster(null);
               }}
               onViewActiveShipments={() => {
-                // For now, just close the popup - could be enhanced to filter shipments
+                if (onViewActiveShipments) {
+                  onViewActiveShipments(selectedDisaster.id);
+                }
                 setSelectedDisaster(null);
               }}
               position={popupPosition}
