@@ -109,6 +109,17 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
     }
   };
 
+  const getShipmentProgress = (status: Shipment['status']) => {
+    switch (status) {
+      case 'loading': return 10;
+      case 'in_transit': return 60;
+      case 'delayed': return 45;
+      case 'delivered': return 95;
+      case 'exception': return 30;
+      default: return 50;
+    }
+  };
+
   return (
     <motion.div
       className="shipment-tracking-view"
@@ -161,18 +172,23 @@ const ShipmentTrackingView: React.FC<ShipmentTrackingViewProps> = ({
           </div>
 
           <div className="mini-map-container">
-            <h4> Current Position</h4>
+            <h4>🚛 Current Position</h4>
             <div className="mini-map">
               <div className="map-placeholder">
                 <div className="route-line"></div>
-                <div className="origin-marker"></div>
-                <div className="current-marker"></div>
-                <div className="destination-marker"></div>
-                <div className="coordinates">
-                  <div>Origin: {shipment.origin}</div>
-                  <div>Current: {shipment.currentLocation?.name}</div>
-                  <div>Destination: {shipment.destination}</div>
+                <div className="origin-marker">🏢</div>
+                <div 
+                  className="current-marker" 
+                  style={{ left: `${getShipmentProgress(shipment.status)}%` }}
+                >
+                  🚛
                 </div>
+                <div className="destination-marker">📍</div>
+                                  <div className="coordinates">
+                    <div>Origin: {shipment.origin}</div>
+                    <div>Current: {shipment.currentLocation?.name}</div>
+                    <div>Destination: {shipment.destination}</div>
+                  </div>
               </div>
             </div>
           </div>
