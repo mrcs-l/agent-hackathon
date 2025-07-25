@@ -139,11 +139,76 @@ const Dashboard: React.FC = () => {
     }));
   };
 
-  const handleViewActiveShipments = () => {
-    // Navigate to first available shipment
-    const activeShipment = shipments.find(s => s.status === 'in_transit' || s.status === 'delayed');
+  const handleViewActiveShipments = (disasterId?: string) => {
+    let targetShipments = shipments;
+    
+    // If a disaster ID is provided, filter shipments related to that disaster
+    if (disasterId) {
+      const disaster = disasters.find(d => d.id === disasterId);
+      // console.log('Looking for disaster:', disasterId, 'Found:', disaster);
+      
+      if (disaster) {
+        // Extract location components for matching
+        const disasterLocation = disaster.location.name.toLowerCase();
+        const locationParts = disasterLocation.split(',').map(part => part.trim());
+        // console.log('Disaster location parts:', locationParts);
+        
+        // Filter shipments going to or near the disaster location
+        const relatedShipments = shipments.filter(shipment => {
+          const destination = shipment.destination.toLowerCase();
+          const matches = locationParts.some(part => 
+            destination.includes(part) || 
+            part.includes(destination.split(',')[0].trim())
+          );
+          // console.log(`Checking shipment ${shipment.id} to ${destination} against ${locationParts}: ${matches}`);
+          return matches;
+        });
+        
+        // console.log('Related shipments found:', relatedShipments.length);
+        
+        // If we found disaster-related shipments, use those; otherwise fall back to all shipments
+        if (relatedShipments.length > 0) {
+          targetShipments = relatedShipments;
+        }
+      }
+    }
+    
+    // Find the most relevant active shipment (prioritize in_transit, then delayed, then loading)
+    const activeShipment = targetShipments.find(s => s.status === 'in_transit') ||
+                          targetShipments.find(s => s.status === 'delayed') ||
+                          targetShipments.find(s => s.status === 'loading') ||
+                          shipments.find(s => s.status === 'in_transit' || s.status === 'delayed');
+    
     if (activeShipment) {
       handleShipmentClick(activeShipment);
+      
+    //   // Show a notification about what we found
+    //   const disaster = disasterId ? disasters.find(d => d.id === disasterId) : null;
+    //   const isRelatedToDisaster = disaster && targetShipments.includes(activeShipment);
+      
+    //   if (isRelatedToDisaster) {
+    //     const notification: NotificationPopup = {
+    //       id: `shipment-found-${Date.now()}`,
+    //       type: 'agentforce',
+    //       title: 'Disaster-Related Shipment Found',
+    //       message: `Showing shipment ${activeShipment.id} heading to ${disaster.location.name}`,
+    //       autoClose: true
+    //     };
+    //     setNotifications(prev => [notification, ...prev]);
+    //   }
+    // } else {
+    //   // Show a notification if no active shipments are found
+    //   const disaster = disasterId ? disasters.find(d => d.id === disasterId) : null;
+    //   const notification: NotificationPopup = {
+    //     id: `no-shipments-${Date.now()}`,
+    //     type: 'agentforce',
+    //     title: 'No Active Shipments',
+    //     message: disaster 
+    //       ? `No active shipments found for ${disaster.location.name}.`
+    //       : 'No active shipments found in the system.',
+    //     autoClose: true
+    //   };
+    //   setNotifications(prev => [notification, ...prev]);
     }
   };
 
@@ -1012,7 +1077,7 @@ const Dashboard: React.FC = () => {
                 key={impactMetrics.peopleHelped}
                 initial={{ scale: 1.1 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.3 }}  
               >
                 {impactMetrics.peopleHelped.toLocaleString()}
               </motion.div>
@@ -1100,7 +1165,7 @@ const Dashboard: React.FC = () => {
                   const disaster = disasters.find(d => d.id === disasterId);
                   if (disaster) handleDisasterClick(disaster);
                 }}
-                onViewActiveShipments={handleViewActiveShipments}
+                onViewActiveShipments={(disasterId) => handleViewActiveShipments(disasterId)}
               />
             </motion.div>
           )}
