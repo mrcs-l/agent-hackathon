@@ -142,14 +142,8 @@ const InventoryView: React.FC<InventoryViewProps> = ({
   };
 
   const getCategoryIcon = (category: string) => {
-    const icons = {
-      'Water': '💧',
-      'Food': '🍽️',
-      'Medical': '🏥',
-      'Shelter': '⛺',
-      'Tools': '🔧'
-    };
-    return icons[category as keyof typeof icons] || '📦';
+    // Removed emojis for clean minimalistic look
+    return '';
   };
 
   const handleSort = (field: typeof sortBy) => {
@@ -215,7 +209,7 @@ const InventoryView: React.FC<InventoryViewProps> = ({
         <button onClick={onBack} className="back-button">
           ← Back to Dashboard
         </button>
-        <h2>📦 Inventory Management: {center.name}</h2>
+        <h2>Inventory Management: {center.name}</h2>
       </div>
 
       {/* Summary Dashboard */}
@@ -507,9 +501,6 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                       color: '#e2e8f0',
                       verticalAlign: 'middle'
                     }}>
-                      <span style={{ marginRight: '0.5rem' }}>
-                        {getCategoryIcon(item.productType)}
-                      </span>
                       {item.productType}
                     </td>
                     <td style={{ 
@@ -580,10 +571,10 @@ const InventoryView: React.FC<InventoryViewProps> = ({
                         fontWeight: '500',
                         fontSize: '0.75rem'
                       }}>
-                        {warningLevel === 'critical' && '🔴 Critical'}
-                        {warningLevel === 'low' && '🟡 Low'}
-                        {warningLevel === 'moderate' && '🟠 Moderate'}
-                        {warningLevel === 'good' && '🟢 Good'}
+                        {warningLevel === 'critical' && 'Critical'}
+                        {warningLevel === 'low' && 'Low'}
+                        {warningLevel === 'moderate' && 'Moderate'}
+                        {warningLevel === 'good' && 'Good'}
                       </span>
                     </td>
                   </tr>
