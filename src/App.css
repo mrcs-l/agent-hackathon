@@ -66,7 +66,8 @@ body {
 
 .header-content h1 {
   font-size: 1.4rem;
-  font-weight: 600;
+  font-weight: normal;
+  font-family: "Armstrong", "Alliance No2", sans-serif;
 }
 
 .header-content h1 .command-text {
@@ -136,7 +137,7 @@ body {
 .sidebar::-webkit-scrollbar-thumb {
   background-color: #475569;
   border-radius: 8px;
-  border: 2px solid transparent; /* Ensures thumb doesn’t shrink */
+  border: 2px solid transparent; /* Ensures thumb doesn't shrink */
 }
 .sidebar:hover::-webkit-scrollbar-thumb {
   background-color: #64748b;
@@ -2946,7 +2947,8 @@ body {
 }
 
 /* Icon styling for enhanced components */
-.status-icon, .event-icon {
+.status-icon,
+.event-icon {
   margin-right: 8px;
   font-size: 1.1em;
 }
@@ -2977,7 +2979,8 @@ body {
 }
 
 @keyframes pulse-warning {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

@@ -1033,9 +1033,7 @@ const Dashboard: React.FC = () => {
       <header className="dashboard-header">
         <div className="header-content">
           <h1>
-            Triage
-            <span style={{ fontStyle: 'italic' }}>f</span>
-            orce <span className="command-text">COMMAND</span>
+            Triageforce
           </h1>
           <div className="live-impact-metrics">
             <div className="metric-item">
