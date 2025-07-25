@@ -624,7 +624,7 @@ export const mockAlerts: Alert[] = [
     id: '1',
     type: 'urgent',
     message: 'Disaster Severity Upgrade: Hurricane Delta now "Critical" in Florida.',
-    timestamp: '2024-07-24T10:30:00Z',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
     relatedId: '1',
     relatedType: 'disaster',
     status: 'active'
@@ -633,7 +633,7 @@ export const mockAlerts: Alert[] = [
     id: '2',
     type: 'urgent',
     message: 'Shipment ATB-789 to Miami Delayed by 12 hours - Road Closure.',
-    timestamp: '2024-07-24T14:15:00Z',
+    timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 minutes ago
     relatedId: 'ATB-789',
     relatedType: 'shipment',
     status: 'active',
@@ -656,7 +656,7 @@ export const mockAlerts: Alert[] = [
     id: '3',
     type: 'urgent',
     message: 'Inventory Low for Water Filters at Seattle Warehouse.',
-    timestamp: '2024-07-24T11:00:00Z',
+    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
     relatedId: '3',
     relatedType: 'inventory',
     status: 'awaiting_resolution',
@@ -679,7 +679,7 @@ export const mockAlerts: Alert[] = [
     id: '4',
     type: 'urgent',
     message: 'Typhoon Genesis approaching Philippines - New disaster zone detected.',
-    timestamp: '2024-07-24T16:45:00Z',
+    timestamp: new Date(Date.now() - 25 * 60 * 1000).toISOString(), // 25 minutes ago
     relatedId: 'disaster-typhoon-1',
     relatedType: 'disaster',
     status: 'active',
@@ -702,21 +702,21 @@ export const mockAlerts: Alert[] = [
     id: '5',
     type: 'info',
     message: 'New Corporate Partner Onboarded: "Global Tech Inc."',
-    timestamp: '2024-07-24T09:00:00Z',
+    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
     status: 'resolved'
   },
   {
     id: '6',
     type: 'info',
     message: 'Weekly Impact Report Generated.',
-    timestamp: '2024-07-24T08:00:00Z',
+    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
     status: 'resolved'
   },
   {
     id: '7',
     type: 'info',
     message: 'Agentforce System Health: All systems operational.',
-    timestamp: '2024-07-24T07:30:00Z',
+    timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12 hours ago
     status: 'active'
   }
 ];
