@@ -19,7 +19,8 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
   const [showAlternatives, setShowAlternatives] = useState(false);
 
   const getStatusIcon = (confirmed: boolean) => {
-    return confirmed ? '✅' : '⏳';
+    // Removed emojis for clean minimalistic look
+    return '';
   };
 
   const getPriorityColor = (priority: string) => {
@@ -33,13 +34,8 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
   };
 
   const getResourceIcon = (resourceType: string) => {
-    const type = resourceType.toLowerCase();
-    if (type.includes('water')) return '💧';
-    if (type.includes('medical') || type.includes('kit')) return '🏥';
-    if (type.includes('food') || type.includes('ration')) return '🍽️';
-    if (type.includes('tent') || type.includes('shelter')) return '⛺';
-    if (type.includes('emergency')) return '🚨';
-    return '📦';
+    // Removed emojis for clean minimalistic look
+    return '';
   };
 
   const handleConfirmRoute = () => {
@@ -68,7 +64,7 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
         <button onClick={onBack} className="back-button">
           ← Back to Dashboard
         </button>
-        <h2>🛣️ Route Details: {route.id}</h2>
+        <h2>Route Details: {route.id}</h2>
       </div>
 
       <div style={{ padding: '2rem' }}>
@@ -84,7 +80,6 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
           alignItems: 'center'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ fontSize: '1.5rem' }}>{getStatusIcon(route.confirmed)}</span>
             <div>
               <div style={{
                 color: '#e2e8f0',
@@ -159,9 +154,11 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '1.5rem',
-                margin: '0 auto 1rem auto'
+                margin: '0 auto 1rem auto',
+                color: '#ffffff',
+                fontWeight: 'bold'
               }}>
-                🏭
+                O
               </div>
               <div style={{
                 fontSize: '0.75rem',
@@ -237,9 +234,11 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '1.5rem',
-                margin: '0 auto 1rem auto'
+                margin: '0 auto 1rem auto',
+                color: '#ffffff',
+                fontWeight: 'bold'
               }}>
-                🎯
+                D
               </div>
               <div style={{
                 fontSize: '0.75rem',
@@ -314,7 +313,7 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
             {route.resources.map((resource, index) => (
               <div key={index} style={{
                 display: 'grid',
-                gridTemplateColumns: 'auto 1fr auto auto',
+                gridTemplateColumns: '1fr auto auto',
                 gap: '1rem',
                 alignItems: 'center',
                 padding: '1rem',
@@ -322,13 +321,6 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
                 borderRadius: '6px',
                 border: '1px solid #334155'
               }}>
-                <div style={{
-                  fontSize: '1.5rem',
-                  width: '3rem',
-                  textAlign: 'center'
-                }}>
-                  {getResourceIcon(resource.type)}
-                </div>
                 <div>
                   <div style={{
                     color: '#e2e8f0',
@@ -554,7 +546,7 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
               whileTap={{ scale: 0.95 }}
               style={{ flex: '1', minWidth: '200px' }}
             >
-              ✅ Confirm Route
+              Confirm Route
             </motion.button>
           )}
           
@@ -564,7 +556,7 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            🔄 View Alternatives
+            View Alternatives
           </motion.button>
           
           <motion.button
@@ -573,7 +565,7 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            ✏️ Modify Route
+            Modify Route
           </motion.button>
           
           <motion.button
@@ -581,7 +573,7 @@ const RouteDetailsView: React.FC<RouteDetailsViewProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            📞 Contact Partner
+            Contact Partner
           </motion.button>
         </div>
 
